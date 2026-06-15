@@ -30,7 +30,7 @@ window.PACKAGES = [
       "③ 導入研修（半日）＋立ち上げ伴走",
       "④ 月次でリモート確認・改善",
     ],
-    demo: null,
+    demo: "demo/tania/index.html",
   },
   {
     id: "agri-tania-farm",
