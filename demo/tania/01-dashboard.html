@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8"><title>Tania - Dashboard</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+.header { background: #2e7d32; color: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+.header h1 { font-size: 20px; font-weight: 700; }
+.farm-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 13px; margin-left: 8px; }
+.sidebar { position: fixed; left: 0; top: 60px; bottom: 0; width: 220px; background: #1b5e20; padding: 20px 0; overflow-y: auto; }
+.sidebar-item { padding: 12px 24px; color: rgba(255,255,255,0.8); font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+.sidebar-item:hover, .sidebar-item.active { background: rgba(255,255,255,0.15); color: white; }
+.sidebar-item.active { border-left: 3px solid #a5d6a7; }
+.main { margin-left: 220px; padding: 28px 36px; min-height: calc(100vh - 60px); }
+.page-title { font-size: 26px; font-weight: 700; color: #1b5e20; }
+.page-subtitle { color: #777; font-size: 14px; margin-top: 4px; margin-bottom: 24px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.kpi-icon { font-size: 24px; margin-bottom: 8px; }
+.kpi-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.kpi-value { font-size: 36px; font-weight: 800; color: #2e7d32; line-height: 1; }
+.kpi-sub { font-size: 12px; color: #aaa; margin-top: 6px; }
+.card { background: white; border-radius: 12px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.card-title { font-size: 16px; font-weight: 700; color: #1b5e20; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; margin-bottom: 16px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #f9fbe7; padding: 10px 14px; text-align: left; font-weight: 600; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+td { padding: 11px 14px; border-bottom: 1px solid #f0f0f0; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f9fbe7; }
+.badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+.badge.active, .badge.ACTIVE { background: #e8f5e9; color: #2e7d32; }
+.badge.pending, .badge.PENDING { background: #fff3e0; color: #e65100; }
+.badge.URGENT { background: #ffebee; color: #c62828; }
+.badge.NORMAL { background: #e3f2fd; color: #1565c0; }
+.badge.SEEDING { background: #f3e5f5; color: #6a1b9a; }
+.badge.GROWING { background: #e8f5e9; color: #1b5e20; }
+.badge.organic { background: #e8f5e9; color: #2e7d32; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.info-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.info-item { background: #f5f5f5; border-radius: 6px; padding: 6px 12px; font-size: 13px; }
+.info-label { font-size: 11px; color: #888; }
+.info-value { font-size: 14px; font-weight: 600; color: #333; }
+</style>
+</head><body>
+<div class="header">
+  <h1>🌱 Tania — Farm Management</h1>
+  <div>
+    <span class="farm-badge">🏡 Settsu-Farm</span>
+    <span class="farm-badge">🌿 organic</span>
+    <span class="farm-badge">📍 Settsu</span>
+    <span class="farm-badge" style="background:rgba(255,200,0,0.3);">demo_mode: ON</span>
+  </div>
+</div>
+
+<div class="sidebar">
+  <div class="sidebar-item active">📊 Dashboard</div>
+  <div class="sidebar-item ">🌾 Farm &amp; Areas</div>
+  <div class="sidebar-item ">🌿 Crops</div>
+  <div class="sidebar-item ">✅ Tasks</div>
+  <div class="sidebar-item ">📦 Inventory</div>
+  <div class="sidebar-item ">🍅 Harvest</div>
+  <div class="sidebar-item">📈 Reports</div>
+</div>
+
+<div class="main">
+  <div class="page-title">Dashboard</div>
+  <div class="page-subtitle">Settsu-Farm 営農サマリー — 2026年6月15日現在</div>
+  
+<div class="kpi-grid">
+  <div class="kpi-card"><div class="kpi-icon">🌾</div><div class="kpi-label">圃場エリア</div><div class="kpi-value">3</div><div class="kpi-sub">総面積 750 m²</div></div>
+  <div class="kpi-card"><div class="kpi-icon">🌿</div><div class="kpi-label">栽培バッチ</div><div class="kpi-value">3</div><div class="kpi-sub">なす / トマト / きゅうり</div></div>
+  <div class="kpi-card"><div class="kpi-icon">✅</div><div class="kpi-label">未完了タスク</div><div class="kpi-value">5</div><div class="kpi-sub">うち緊急 2件</div></div>
+  <div class="kpi-card"><div class="kpi-icon">🍅</div><div class="kpi-label">今週収穫量</div><div class="kpi-value">73 kg</div><div class="kpi-sub">トマト 45kg / きゅうり 28kg</div></div>
+</div>
+<div class="two-col">
+  <div class="card">
+    <div class="card-title">🌿 最近の栽培バッチ</div>
+    <table>
+      <tr><th>バッチID</th><th>品目</th><th>種別</th><th>数量</th><th>状態</th></tr>
+<tr><td><b>cuc-15jun</b></td><td>Cucumber-Seedling</td><td><span class='badge GROWING'>GROWING</span></td><td>20 トレイ</td><td><span class='badge ACTIVE'>ACTIVE</span></td></tr><tr><td><b>nas-15jun</b></td><td>Nasu-Torigai</td><td><span class='badge SEEDING'>SEEDING</span></td><td>5 トレイ</td><td><span class='badge ACTIVE'>ACTIVE</span></td></tr><tr><td><b>tom-15jun</b></td><td>Tomato-Momotaro</td><td><span class='badge GROWING'>GROWING</span></td><td>3 トレイ</td><td><span class='badge ACTIVE'>ACTIVE</span></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">✅ 直近タスク（期日順）</div>
+    <table>
+      <tr><th>タスク名</th><th>優先度</th><th>期日</th><th>カテゴリ</th></tr>
+<tr><td>Watering-Nasu-Seeds</td><td><span class='badge NORMAL'>NORMAL</span></td><td>2026-06-16</td><td>NUTRIENT</td></tr><tr><td>Apply-Compost-Field-A</td><td><span class='badge NORMAL'>NORMAL</span></td><td>2026-06-17</td><td>NUTRIENT</td></tr><tr><td>Pest-Control-Greenhouse</td><td><span class='badge URGENT'>URGENT</span></td><td>2026-06-18</td><td>PESTCONTROL</td></tr><tr><td>Harvest-Tomato-Field-A</td><td><span class='badge URGENT'>URGENT</span></td><td>2026-06-20</td><td>CROP</td></tr><tr><td>Monthly-Sanitation-Check</td><td><span class='badge NORMAL'>NORMAL</span></td><td>2026-06-30</td><td>SANITATION</td></tr>
+    </table>
+  </div>
+</div>
+</div>
+</body></html>

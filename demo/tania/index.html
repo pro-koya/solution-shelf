@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>デモ：地域EC・CSA 栽培〜出荷 一元管理（イメージ）</title>
+<title>デモ：地域EC・CSA 栽培〜出荷 一元管理（tania 実画面）</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
@@ -13,45 +13,112 @@
     --display:"Shippori Mincho",serif; --body:"Zen Kaku Gothic New",system-ui,"Noto Sans JP",sans-serif; }
   *{box-sizing:border-box;}
   body{ margin:0; border-top:4px solid; border-image:linear-gradient(90deg,var(--forest-deep),var(--clay)) 1;
-    font-family:var(--body); color:var(--ink); background:var(--paper); line-height:1.7;
-    background-image:radial-gradient(820px 480px at 90% -8%,rgba(191,100,56,.08),transparent 60%),radial-gradient(760px 480px at -6% 6%,rgba(47,93,79,.10),transparent 55%);
-    -webkit-font-smoothing:antialiased; }
-  .wrap{ max-width:980px; margin:0 auto; padding:36px 22px 70px; }
+    font-family:var(--body); color:var(--ink); background:var(--paper); line-height:1.7; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(820px 480px at 90% -8%,rgba(191,100,56,.07),transparent 60%),radial-gradient(760px 480px at -6% 6%,rgba(47,93,79,.09),transparent 55%); }
+  .wrap{ max-width:1180px; margin:0 auto; padding:28px 22px 70px; }
   a.back{ color:var(--forest-deep); font-size:13px; font-weight:700; text-decoration:none; letter-spacing:.04em; }
   a.back:hover{ text-decoration:underline; }
-  .kick{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; color:var(--clay); font-weight:700; margin:18px 0 8px; }
-  h1{ font-family:var(--display); font-weight:700; color:var(--forest-deep); font-size:clamp(26px,5vw,38px); line-height:1.25; margin:0 0 14px; }
-  .note{ background:#fbf7ef; border:1px solid #ece2cd; border-radius:12px; padding:14px 18px; color:var(--ink); font-size:14px; margin:14px 0 34px; }
-  .note b{ color:var(--clay); }
-  figure{ margin:0 0 38px; }
-  .cap{ display:flex; gap:12px; align-items:baseline; margin-bottom:10px; }
-  .cap .num{ font-family:var(--display); font-weight:700; color:var(--clay); font-size:18px; }
-  .cap h2{ font-family:var(--display); font-weight:600; font-size:19px; margin:0; color:var(--ink); }
-  .cap .d{ color:var(--muted); font-size:13.5px; }
-  img{ width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:12px;
-    box-shadow:0 1px 2px rgba(31,38,29,.05),0 20px 44px -24px rgba(31,38,29,.4); background:#fff; }
-  footer{ border-top:1px solid var(--line); padding-top:22px; color:var(--muted); font-size:12.5px; }
+  .kick{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; color:var(--clay); font-weight:700; margin:16px 0 6px; }
+  h1{ font-family:var(--display); font-weight:700; color:var(--forest-deep); font-size:clamp(23px,4.4vw,34px); line-height:1.25; margin:0 0 12px; }
+  .note{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:13px 17px; color:var(--ink); font-size:13.5px; margin:10px 0 26px; }
+  .note b{ color:var(--forest-deep); }
+  .layout{ display:grid; grid-template-columns:226px 1fr; gap:24px; align-items:start; }
+  @media (max-width:760px){ .layout{ grid-template-columns:1fr; } }
+  nav.scr{ display:flex; flex-direction:column; gap:5px; position:sticky; top:18px; }
+  @media (max-width:760px){ nav.scr{ position:static; flex-direction:row; flex-wrap:wrap; } }
+  .nav-item{ text-align:left; font-family:var(--body); font-size:14px; cursor:pointer; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink); padding:10px 14px; border-radius:10px; transition:all .16s ease; line-height:1.3; }
+  .nav-item .s{ display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .nav-item:hover{ border-color:var(--forest); }
+  .nav-item[aria-current="true"]{ background:var(--forest-deep); border-color:var(--forest-deep); color:#fff; }
+  .nav-item[aria-current="true"] .s{ color:rgba(255,255,255,.72); }
+  .stage{ min-width:0; }
+  .stage .cap{ display:flex; gap:11px; align-items:baseline; margin-bottom:6px; }
+  .stage .cap .num{ font-family:var(--display); font-weight:700; color:var(--clay); font-size:17px; }
+  .stage h2{ font-family:var(--display); font-weight:600; font-size:21px; margin:0; color:var(--ink); }
+  .stage .pitch{ color:var(--muted); font-size:14px; margin:0 0 14px; }
+  .frame{ border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff;
+    box-shadow:0 1px 2px rgba(31,38,29,.05),0 22px 48px -26px rgba(31,38,29,.42); }
+  .frame img{ width:100%; height:auto; display:block; }
+  .arrows{ display:flex; justify-content:space-between; margin-top:14px; }
+  .arrows button{ font-family:var(--body); font-size:13px; font-weight:700; cursor:pointer; border:1px solid var(--line);
+    background:var(--surface); color:var(--forest-deep); padding:9px 16px; border-radius:999px; }
+  .arrows button:hover{ border-color:var(--forest); }
+  .arrows button:disabled{ opacity:.4; cursor:default; }
+  footer{ border-top:1px solid var(--line); margin-top:34px; padding-top:20px; color:var(--muted); font-size:12.5px; }
 </style>
 </head>
 <body>
   <div class="wrap">
     <a class="back" href="../../index.html#agri-tania-platform">← 解の棚にもどる</a>
-    <p class="kick">Demo / イメージ</p>
+    <p class="kick">Demo / 実画面</p>
     <h1>地域EC・CSA 栽培〜出荷 まるごと一元管理</h1>
     <div class="note">
-      <b>※ これはイメージ画面です。</b>実績ある農業管理OSS「tania」を実際に動かし、サンプル農場のデータを入れて
-      主要画面を作成したものです。実際の導入では、御社の運用（出荷・受注の流れ）に合わせて設定します。
+      <b>これは実際の画面です。</b>オープンソースの農業管理ソフト「tania」を実際に動かし、
+      サンプル農場（Settsu-Farm）のデータを入れて撮影しました。左の項目をクリックして操作感をご覧ください。
+      実際の導入では御社の運用に合わせて設定します。
     </div>
 
-    <figure><div class="cap"><span class="num">01</span><h2>ダッシュボード</h2><span class="d">農場全体が1画面（圃場数・栽培バッチ・タスク・今週の収穫）</span></div><img src="01-dashboard.png" alt="ダッシュボード" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">02</span><h2>圃場・エリア管理</h2><span class="d">露地・ハウス・苗床を面積や水源つきで構造的に登録</span></div><img src="02-farm-areas.png" alt="圃場・エリア管理" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">03</span><h2>作物・栽培バッチ</h2><span class="d">なす・トマト・きゅうりを品目×圃場×進捗で管理</span></div><img src="03-crops.png" alt="作物・栽培バッチ" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">04</span><h2>作業記録・タスク</h2><span class="d">水やり・施肥・防除・収穫を期日と優先度で。今日やることが一目で</span></div><img src="04-tasks.png" alt="作業記録・タスク" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">05</span><h2>在庫（種苗・資材）</h2><span class="d">種・苗・堆肥などを単価つきで記録</span></div><img src="05-inventory.png" alt="在庫" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">06</span><h2>収穫記録</h2><span class="d">品目別の収量を記録し、出荷データへつなぐイメージ</span></div><img src="06-harvest.png" alt="収穫記録" loading="lazy" /></figure>
-    <figure><div class="cap"><span class="num">00</span><h2>ログイン</h2><span class="d">シンプルに始められる</span></div><img src="00-login.png" alt="ログイン" loading="lazy" /></figure>
+    <div class="layout">
+      <nav class="scr" id="nav" aria-label="画面を選ぶ"></nav>
+      <div class="stage">
+        <div class="cap"><span class="num" id="s-num"></span><h2 id="s-title"></h2></div>
+        <p class="pitch" id="s-pitch"></p>
+        <div class="frame"><img id="s-img" alt="" /></div>
+        <div class="arrows">
+          <button id="prev">← 前へ</button>
+          <button id="next">次へ →</button>
+        </div>
+      </div>
+    </div>
 
-    <footer>解の棚 — 業務改善・AI導入支援。ベース：tania（オープンソースの農業管理ソフト）。</footer>
+    <footer>解の棚 — 業務改善・AI導入支援。ベース：tania（オープンソースの農業管理ソフト / Tania 1.7）。</footer>
   </div>
+
+  <script>
+    const SCREENS = [
+      { n:"01", t:"ダッシュボード",   f:"real/01-dashboard.png",   p:"農場全体を1画面で。圃場数・作業・直近タスクがひと目で見渡せる。" },
+      { n:"02", t:"圃場・エリア",     f:"real/02-farm-areas.png",  p:"露地・ハウス・苗床を面積つきで構造的に登録。" },
+      { n:"03", t:"作物の記録",       f:"real/03b-crop-detail.png",p:"作物ごとに収穫・移動・写真をワンタップ記録。活動が時系列で残る。" },
+      { n:"04", t:"作業・タスク",     f:"real/04-tasks.png",       p:"水やり・施肥・防除・収穫を期日と優先度で。今日やることが一目。" },
+      { n:"05", t:"在庫（種苗・資材）", f:"real/05-inventory.png",  p:"種・苗・農薬・資材を数量つきで記録。" },
+      { n:"06", t:"収穫",             f:"real/06-harvest.png",     p:"収穫量を記録（例：きゅうり28kg）。出荷データへつなぐ起点。" },
+      { n:"07", t:"水源",             f:"real/08-reservoirs.png",  p:"水源（井戸・水道）と圃場の供給先を管理。" },
+      { n:"00", t:"ログイン",         f:"real/00-login.png",       p:"シンプルに始められる。" },
+    ];
+    let idx = 0;
+    const navEl = document.getElementById("nav");
+    const $ = (id) => document.getElementById(id);
+
+    function renderNav() {
+      navEl.innerHTML = "";
+      SCREENS.forEach((s, i) => {
+        const b = document.createElement("button");
+        b.className = "nav-item";
+        b.setAttribute("aria-current", i === idx);
+        b.innerHTML = `${s.t}<span class="s">${s.n}</span>`;
+        b.onclick = () => { idx = i; render(); };
+        navEl.appendChild(b);
+      });
+    }
+    function render() {
+      const s = SCREENS[idx];
+      $("s-num").textContent = s.n;
+      $("s-title").textContent = s.t;
+      $("s-pitch").textContent = s.p;
+      const img = $("s-img");
+      img.src = s.f; img.alt = s.t;
+      $("prev").disabled = idx === 0;
+      $("next").disabled = idx === SCREENS.length - 1;
+      renderNav();
+    }
+    $("prev").onclick = () => { if (idx > 0) { idx--; render(); } };
+    $("next").onclick = () => { if (idx < SCREENS.length - 1) { idx++; render(); } };
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && idx > 0) { idx--; render(); }
+      if (e.key === "ArrowRight" && idx < SCREENS.length - 1) { idx++; render(); }
+    });
+    render();
+  </script>
 </body>
 </html>

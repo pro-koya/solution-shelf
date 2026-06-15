@@ -83,7 +83,7 @@ window.PACKAGES = [
       "③ 広報の進行管理＋下書きAI",
       "④ 利用者支援の記録",
     ],
-    demo: null,
+    demo: "demo/btype/index.html",
   },
   {
     id: "yoyaku-base",

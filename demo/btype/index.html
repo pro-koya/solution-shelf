@@ -1,0 +1,1570 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>業務管理OS — デモ | 就労支援事業所向け</title>
+<meta name="description" content="就労支援事業所（B型/A型）向け業務管理OSのインタラクティブ・プロトタイプ。" />
+<meta name="robots" content="noindex,nofollow" />
+<meta name="theme-color" content="#244b40" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   RESET & TOKENS
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; font-size: 16px; }
+
+:root {
+  --paper:        #f6f2ea;
+  --paper-2:      #efe9dd;
+  --surface:      #fffdf8;
+  --ink:          #1f261d;
+  --muted:        #6f685b;
+  --line:         #e4dccd;
+  --forest:       #2f5d4f;
+  --forest-deep:  #244b40;
+  --clay:         #bf6438;
+  --clay-soft:    #d98a5c;
+
+  /* 事業タグ色 */
+  --biz-cafe:     #bf6438;   /* カフェ運営 */
+  --biz-ec:       #3a6ea5;   /* 物販・EC */
+  --biz-farm:     #3f7d5a;   /* 農作業 */
+  --biz-pr:       #876aae;   /* 広報・SNS */
+
+  --radius:       12px;
+  --radius-sm:    8px;
+  --shadow:       0 1px 3px rgba(31,38,29,.06), 0 8px 24px -10px rgba(31,38,29,.22);
+  --shadow-lift:  0 2px 8px rgba(31,38,29,.08), 0 20px 40px -14px rgba(31,38,29,.32);
+
+  --display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --body:    "Zen Kaku Gothic New", system-ui, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+
+  --sidebar-w: 220px;
+  --header-h:  60px;
+}
+
+body {
+  font-family: var(--body);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  border-top: 4px solid;
+  border-image: linear-gradient(90deg, var(--forest-deep), var(--clay)) 1;
+  min-height: 100vh;
+}
+
+/* faint grain */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   TOP HEADER BAR
+   ============================================================ */
+.top-bar {
+  position: fixed; top: 4px; left: 0; right: 0; height: var(--header-h);
+  background: var(--surface); border-bottom: 1px solid var(--line);
+  z-index: 100; display: flex; align-items: center; padding: 0 20px;
+  gap: 16px;
+}
+.top-bar .logo {
+  font-family: var(--display); font-weight: 700; font-size: 17px;
+  color: var(--forest-deep); letter-spacing: .02em; white-space: nowrap;
+}
+.top-bar .logo span { color: var(--clay); }
+.top-bar .proto-note {
+  font-size: 11.5px; color: var(--muted); border: 1px solid var(--line);
+  padding: 3px 10px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
+}
+.top-bar .spacer { flex: 1; }
+.top-bar .back-link {
+  font-size: 12.5px; color: var(--forest-deep); text-decoration: none;
+  font-weight: 700; letter-spacing: .04em; border: 1px solid var(--line);
+  padding: 6px 14px; border-radius: 999px; transition: all .16s ease;
+  white-space: nowrap; flex-shrink: 0;
+}
+.top-bar .back-link:hover { background: var(--paper-2); border-color: var(--forest); }
+
+/* ============================================================
+   LAYOUT: SIDEBAR + CONTENT
+   ============================================================ */
+.shell {
+  position: fixed; top: calc(4px + var(--header-h)); bottom: 0;
+  left: 0; right: 0; display: flex; z-index: 1;
+}
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--surface); border-right: 1px solid var(--line);
+  overflow-y: auto; padding: 20px 0 32px;
+}
+.sidebar .nav-label {
+  font-size: 10.5px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--muted); font-weight: 700; padding: 0 20px; margin-bottom: 10px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; cursor: pointer; border-radius: 0;
+  font-size: 14px; font-weight: 500; color: var(--ink);
+  transition: background .14s ease, color .14s ease;
+  border-left: 3px solid transparent;
+  line-height: 1.3; user-select: none;
+}
+.nav-item:hover { background: var(--paper); }
+.nav-item.active {
+  background: var(--paper); color: var(--forest-deep);
+  border-left-color: var(--forest-deep); font-weight: 700;
+}
+.nav-item .icon { font-size: 17px; width: 22px; text-align: center; flex-shrink: 0; }
+.nav-item .label { flex: 1; }
+.nav-item .count {
+  font-size: 11px; background: var(--clay); color: #fff;
+  padding: 2px 7px; border-radius: 999px; font-weight: 700;
+}
+.sidebar .divider { height: 1px; background: var(--line); margin: 14px 16px; }
+
+/* Content area */
+.content {
+  flex: 1; overflow-y: auto; padding: 32px 36px;
+  background: var(--paper);
+}
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .content { padding: 20px 16px; }
+  .top-bar .logo { font-size: 14px; }
+}
+
+/* ============================================================
+   VIEWS (tab panels)
+   ============================================================ */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header {
+  margin-bottom: 24px;
+}
+.section-header .kicker {
+  font-size: 11px; letter-spacing: .36em; text-transform: uppercase;
+  color: var(--clay); font-weight: 700; margin-bottom: 6px;
+}
+.section-header h2 {
+  font-family: var(--display); font-size: clamp(22px, 3.5vw, 30px);
+  font-weight: 700; color: var(--forest-deep); letter-spacing: .02em; line-height: 1.2;
+}
+.section-header .sub {
+  color: var(--muted); font-size: 14px; margin-top: 6px;
+}
+
+/* ============================================================
+   CARDS / SURFACE
+   ============================================================ */
+.card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-header h3 {
+  font-family: var(--display); font-size: 15px; font-weight: 600;
+  color: var(--ink); letter-spacing: .01em;
+}
+.card-body { padding: 18px 20px; }
+
+/* ============================================================
+   VIEW 1: DASHBOARD
+   ============================================================ */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 1100px) { .dash-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .dash-grid { grid-template-columns: 1fr; } }
+
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 22px;
+  box-shadow: var(--shadow);
+}
+.kpi-card .kpi-label {
+  font-size: 12px; letter-spacing: .06em; color: var(--muted);
+  font-weight: 700; margin-bottom: 8px; text-transform: uppercase;
+}
+.kpi-card .kpi-value {
+  font-family: var(--display); font-size: 40px; font-weight: 700;
+  color: var(--forest-deep); line-height: 1; margin-bottom: 4px;
+}
+.kpi-card .kpi-value .unit {
+  font-size: 18px; font-weight: 500; margin-left: 2px;
+}
+.kpi-card .kpi-sub {
+  font-size: 12.5px; color: var(--muted);
+}
+.kpi-card.warn .kpi-value { color: #b84b2e; }
+.kpi-card.ok   .kpi-value { color: var(--forest); }
+
+.dash-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;
+}
+@media (max-width: 840px) { .dash-row { grid-template-columns: 1fr; } }
+
+.alert-list { list-style: none; }
+.alert-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 0; border-bottom: 1px dashed var(--line);
+  font-size: 13.5px; line-height: 1.4;
+}
+.alert-item:last-child { border-bottom: none; }
+.alert-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 5px;
+}
+.dot-warn  { background: #b84b2e; }
+.dot-info  { background: var(--clay); }
+.dot-ok    { background: var(--forest); }
+
+.biz-status-list { list-style: none; }
+.biz-status-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px dashed var(--line);
+  font-size: 13.5px;
+}
+.biz-status-item:last-child { border-bottom: none; }
+.biz-tag {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 2px 9px; border-radius: 999px; color: #fff; white-space: nowrap; flex-shrink: 0;
+}
+.biz-cafe { background: var(--biz-cafe); }
+.biz-ec   { background: var(--biz-ec); }
+.biz-farm { background: var(--biz-farm); }
+.biz-pr   { background: var(--biz-pr); }
+
+.biz-name { flex: 1; font-weight: 500; }
+.biz-status-badge {
+  font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+}
+.status-ok      { background: #edf7f0; color: #2a7a4c; border: 1px solid #b3e5c9; }
+.status-warn    { background: #fdf2ec; color: #95470f; border: 1px solid #f0c9a6; }
+.status-issue   { background: #fdecea; color: #8f2d1f; border: 1px solid #f0b3ad; }
+
+/* ============================================================
+   VIEW 2: KANBAN
+   ============================================================ */
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px; align-items: start;
+}
+@media (max-width: 1000px) { .kanban { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .kanban { grid-template-columns: 1fr; } }
+
+.kanban-col {
+  background: var(--paper-2); border: 1px solid var(--line);
+  border-radius: var(--radius); overflow: hidden;
+}
+.kanban-col-head {
+  padding: 12px 16px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 8px;
+}
+.col-title {
+  font-size: 13px; font-weight: 700; letter-spacing: .04em;
+  color: var(--ink); flex: 1;
+}
+.col-count {
+  font-size: 11.5px; background: var(--line); color: var(--muted);
+  padding: 2px 8px; border-radius: 999px; font-weight: 700;
+}
+.col-indicator {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.ind-todo    { background: var(--muted); }
+.ind-doing   { background: #3a6ea5; }
+.ind-review  { background: var(--clay); }
+.ind-done    { background: var(--forest); }
+
+.kanban-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+.task-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 12px 13px;
+  box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .15s ease;
+  cursor: pointer;
+}
+.task-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.task-card.overdue { border-left: 3px solid #b84b2e; }
+
+.task-title { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 7px; line-height: 1.35; }
+.task-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.task-tag {
+  font-size: 10.5px; font-weight: 700; padding: 2px 7px;
+  border-radius: 999px; color: #fff; white-space: nowrap;
+}
+.role-badge {
+  font-size: 10.5px; font-weight: 700; padding: 2px 7px;
+  border-radius: 999px; white-space: nowrap;
+}
+.role-staff { background: #eef1f6; color: #3a567e; border: 1px solid #cdd8e8; }
+.role-user  { background: #f1f8ec; color: #3d6b25; border: 1px solid #c0dda5; }
+
+.task-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--line);
+}
+.task-assignee { font-size: 11.5px; color: var(--muted); }
+.task-due { font-size: 11.5px; color: var(--muted); }
+.task-due.overdue { color: #b84b2e; font-weight: 700; }
+
+/* ============================================================
+   VIEW 3: WEEKLY SCHEDULE
+   ============================================================ */
+.week-header-row {
+  display: grid; grid-template-columns: 70px repeat(5, 1fr);
+  gap: 2px; margin-bottom: 6px;
+}
+.week-day-head {
+  text-align: center; font-size: 12px; font-weight: 700;
+  color: var(--muted); letter-spacing: .06em; padding: 6px 0;
+}
+.week-day-head.today { color: var(--forest-deep); }
+.week-day-date { font-family: var(--display); font-size: 20px; font-weight: 600; line-height: 1; }
+
+.week-grid {
+  display: grid; grid-template-columns: 70px repeat(5, 1fr);
+  gap: 2px;
+}
+.week-time-label {
+  font-size: 11px; color: var(--muted); text-align: right;
+  padding: 0 8px; line-height: 1; padding-top: 6px; font-weight: 500;
+}
+.week-cell {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 6px; min-height: 52px; padding: 4px;
+  position: relative; transition: background .12s;
+}
+.week-cell:hover { background: var(--paper-2); }
+.week-event {
+  border-radius: 5px; padding: 4px 7px;
+  font-size: 11.5px; font-weight: 600; color: #fff;
+  margin-bottom: 2px; line-height: 1.3; cursor: pointer;
+  transition: opacity .14s;
+}
+.week-event:hover { opacity: .85; }
+.ev-cafe { background: var(--biz-cafe); }
+.ev-ec   { background: var(--biz-ec); }
+.ev-farm { background: var(--biz-farm); }
+.ev-pr   { background: var(--biz-pr); }
+.ev-admin { background: var(--muted); }
+
+.week-legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--ink);
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 3px;
+}
+
+/* ============================================================
+   VIEW 4: SHIFT
+   ============================================================ */
+.shift-grid-wrap { overflow-x: auto; }
+.shift-grid {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px; min-width: 640px;
+}
+.shift-grid th, .shift-grid td {
+  border: 1px solid var(--line); padding: 10px 12px;
+  text-align: center; vertical-align: middle;
+}
+.shift-grid th {
+  background: var(--paper-2); font-weight: 700;
+  font-size: 12px; letter-spacing: .04em; color: var(--ink);
+}
+.shift-grid .col-name {
+  text-align: left; font-weight: 700; padding-left: 16px;
+  background: var(--paper-2); white-space: nowrap;
+}
+.shift-cell-in {
+  background: #edf7f0; color: #2a7a4c; font-weight: 700;
+  border-radius: 5px; padding: 4px 8px; display: inline-block;
+  font-size: 12px;
+}
+.shift-cell-out {
+  color: var(--muted); font-size: 12px;
+}
+.shift-shortage {
+  background: #fdecea; color: #8f2d1f;
+  font-size: 11px; font-weight: 700; border-radius: 5px;
+  padding: 3px 7px; display: inline-block; margin-top: 3px;
+}
+.shift-surplus {
+  background: #edf7f0; color: #2a7a4c;
+  font-size: 11px; font-weight: 700; border-radius: 5px;
+  padding: 3px 7px; display: inline-block; margin-top: 3px;
+}
+.shift-day-head { min-width: 80px; }
+.shift-total-row td {
+  background: var(--paper); font-weight: 700; font-size: 12px;
+}
+
+/* ============================================================
+   VIEW 5: ROLE ASSIGNMENT
+   ============================================================ */
+.role-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.role-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px;
+}
+.role-card .staff-name {
+  font-family: var(--display); font-size: 17px; font-weight: 700;
+  color: var(--forest-deep); margin-bottom: 4px;
+}
+.role-card .staff-title {
+  font-size: 12px; color: var(--muted); margin-bottom: 12px; letter-spacing: .02em;
+}
+.role-card .user-chips {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.user-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 11px;
+  font-size: 12.5px; font-weight: 500; color: var(--ink);
+}
+.user-chip .chip-icon { font-size: 13px; }
+.role-card .staff-biz {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px;
+}
+
+/* ============================================================
+   VIEW 6: PR / CONTENT
+   ============================================================ */
+.pr-kanban {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+@media (max-width: 800px) { .pr-kanban { grid-template-columns: 1fr; } }
+
+.pr-col {
+  background: var(--paper-2); border: 1px solid var(--line);
+  border-radius: var(--radius); overflow: hidden;
+}
+.pr-col-head {
+  padding: 11px 16px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 8px;
+}
+.pr-col-head .col-title { font-size: 13.5px; font-weight: 700; color: var(--ink); flex: 1; }
+
+.pr-cards { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+.pr-card {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 13px 14px;
+  box-shadow: var(--shadow); cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.pr-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.pr-card .pr-title { font-size: 13.5px; font-weight: 600; margin-bottom: 6px; line-height: 1.35; }
+.pr-card .pr-meta  { display: flex; gap: 6px; flex-wrap: wrap; }
+.pr-card .pr-date  { font-size: 11.5px; color: var(--muted); margin-top: 8px; }
+
+/* AI Draft button area */
+.ai-draft-area {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 22px 24px;
+  margin-bottom: 24px; box-shadow: var(--shadow);
+}
+.ai-draft-area h3 {
+  font-family: var(--display); font-size: 17px; font-weight: 700;
+  color: var(--forest-deep); margin-bottom: 6px;
+}
+.ai-draft-area .ai-desc { font-size: 13.5px; color: var(--muted); margin-bottom: 14px; }
+.ai-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px; }
+.select-biz {
+  font-family: var(--body); font-size: 13.5px; color: var(--ink);
+  background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  cursor: pointer; outline: none;
+}
+.select-biz:focus { border-color: var(--forest); }
+.btn-ai {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--forest-deep); color: #fff;
+  font-family: var(--body); font-size: 13.5px; font-weight: 700;
+  border: none; border-radius: var(--radius-sm); padding: 9px 18px;
+  cursor: pointer; transition: background .15s ease; letter-spacing: .02em;
+}
+.btn-ai:hover { background: var(--forest); }
+.btn-ai:disabled { background: var(--muted); cursor: not-allowed; }
+.btn-ai .ai-icon { font-size: 15px; }
+.ai-loading {
+  display: none; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--muted);
+}
+.ai-loading.visible { display: flex; }
+.spinner {
+  width: 16px; height: 16px; border: 2px solid var(--line);
+  border-top-color: var(--forest); border-radius: 50%;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.draft-result { display: none; }
+.draft-result.visible { display: block; }
+.draft-textarea {
+  width: 100%; font-family: var(--body); font-size: 13.5px;
+  color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  resize: vertical; line-height: 1.65; min-height: 130px; outline: none;
+}
+.draft-textarea:focus { border-color: var(--forest); }
+.draft-actions { display: flex; gap: 8px; margin-top: 10px; }
+.btn-outline {
+  font-family: var(--body); font-size: 12.5px; font-weight: 700;
+  color: var(--forest-deep); background: transparent;
+  border: 1px solid var(--forest); border-radius: var(--radius-sm);
+  padding: 7px 14px; cursor: pointer; transition: all .14s ease;
+  letter-spacing: .02em;
+}
+.btn-outline:hover { background: var(--forest); color: #fff; }
+
+/* ============================================================
+   SHARED UTILITIES
+   ============================================================ */
+.row-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px;
+}
+@media (max-width: 760px) { .row-grid { grid-template-columns: 1fr; } }
+.mb-24 { margin-bottom: 24px; }
+
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+}
+
+.chip-count {
+  display: inline-block; font-size: 10.5px; background: var(--clay);
+  color: #fff; border-radius: 999px; padding: 2px 7px; font-weight: 700;
+  margin-left: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- TOP HEADER BAR -->
+<header class="top-bar">
+  <div class="logo">業務管理<span>OS</span></div>
+  <span class="proto-note">※ これはイメージのデモです</span>
+  <div class="spacer"></div>
+  <a href="../../index.html#btype-ai" class="back-link">← 解の棚にもどる</a>
+</header>
+
+<!-- MAIN SHELL -->
+<div class="shell">
+
+  <!-- SIDEBAR NAV -->
+  <nav class="sidebar" role="navigation" aria-label="メニュー">
+    <div class="nav-label">メニュー</div>
+
+    <div class="nav-item active" data-view="dashboard" role="button" tabindex="0" aria-current="page">
+      <span class="icon">🏠</span>
+      <span class="label">統合ダッシュボード</span>
+    </div>
+    <div class="nav-item" data-view="kanban" role="button" tabindex="0">
+      <span class="icon">📋</span>
+      <span class="label">タスクボード</span>
+      <span class="count">3</span>
+    </div>
+    <div class="nav-item" data-view="schedule" role="button" tabindex="0">
+      <span class="icon">📅</span>
+      <span class="label">週間スケジュール</span>
+    </div>
+    <div class="nav-item" data-view="shift" role="button" tabindex="0">
+      <span class="icon">🕐</span>
+      <span class="label">シフト管理</span>
+    </div>
+    <div class="nav-item" data-view="role" role="button" tabindex="0">
+      <span class="icon">👥</span>
+      <span class="label">役割・担当割当</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="nav-item" data-view="pr" role="button" tabindex="0">
+      <span class="icon">📣</span>
+      <span class="label">広報の進行</span>
+      <span class="count">2</span>
+    </div>
+  </nav>
+
+  <!-- CONTENT AREA -->
+  <main class="content" id="content">
+
+    <!-- ====================================================
+         VIEW 1: DASHBOARD
+         ==================================================== -->
+    <section class="view active" id="view-dashboard">
+      <div class="section-header">
+        <div class="kicker">Today — 2026年6月15日 (月)</div>
+        <h2>今日の全体状況</h2>
+        <p class="sub">4事業の状況をひとつの画面で確認できます。</p>
+      </div>
+
+      <!-- KPI row -->
+      <div class="dash-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">今日のタスク</div>
+          <div class="kpi-value">12<span class="unit">件</span></div>
+          <div class="kpi-sub">うち期限超過 <strong style="color:#b84b2e">3件</strong></div>
+        </div>
+        <div class="kpi-card warn">
+          <div class="kpi-label">確認待ちの広報</div>
+          <div class="kpi-value">2<span class="unit">件</span></div>
+          <div class="kpi-sub">最古: 3日前から未確認</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">今週のシフト</div>
+          <div class="kpi-value">37<span class="unit">h</span></div>
+          <div class="kpi-sub">木曜 <strong style="color:#b84b2e">−2名不足</strong></div>
+        </div>
+        <div class="kpi-card ok">
+          <div class="kpi-label">稼働中の利用者さん</div>
+          <div class="kpi-value">18<span class="unit">名</span></div>
+          <div class="kpi-sub">本日の欠席予定 2名</div>
+        </div>
+      </div>
+
+      <!-- Alert + Biz status row -->
+      <div class="dash-row">
+        <div class="card">
+          <div class="card-header">
+            <h3>要対応アラート</h3>
+          </div>
+          <div class="card-body">
+            <ul class="alert-list">
+              <li class="alert-item">
+                <span class="alert-dot dot-warn"></span>
+                <span>【農作業】6/17（水）の収穫担当が未確定。早急に割当を。</span>
+              </li>
+              <li class="alert-item">
+                <span class="alert-dot dot-warn"></span>
+                <span>【タスク】「Instagram投稿 6/15分」が期限超過（昨日期限）。</span>
+              </li>
+              <li class="alert-item">
+                <span class="alert-dot dot-info"></span>
+                <span>【広報】農作業レポートの下書きが確認待ちで3日経過しています。</span>
+              </li>
+              <li class="alert-item">
+                <span class="alert-dot dot-info"></span>
+                <span>【シフト】木曜午後のカフェ運営スタッフが1名不足しています。</span>
+              </li>
+              <li class="alert-item">
+                <span class="alert-dot dot-ok"></span>
+                <span>【物販・EC】今週の発送作業は全員割当済み。対応状況は良好。</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>事業別 状況一覧</h3>
+          </div>
+          <div class="card-body">
+            <ul class="biz-status-list">
+              <li class="biz-status-item">
+                <span class="biz-tag biz-cafe">カフェ運営</span>
+                <span class="biz-name">今日のシフト確定・注文対応中</span>
+                <span class="biz-status-badge status-warn">要確認</span>
+              </li>
+              <li class="biz-status-item">
+                <span class="biz-tag biz-ec">物販・EC</span>
+                <span class="biz-name">発送5件・仕分け済み</span>
+                <span class="biz-status-badge status-ok">順調</span>
+              </li>
+              <li class="biz-status-item">
+                <span class="biz-tag biz-farm">農作業</span>
+                <span class="biz-name">収穫担当未確定・要割当</span>
+                <span class="biz-status-badge status-issue">要対応</span>
+              </li>
+              <li class="biz-status-item">
+                <span class="biz-tag biz-pr">広報・SNS</span>
+                <span class="biz-name">下書き2件が確認待ち</span>
+                <span class="biz-status-badge status-warn">要確認</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today tasks preview -->
+      <div class="card mb-24">
+        <div class="card-header">
+          <h3>本日のタスク（上位5件）</h3>
+        </div>
+        <div class="card-body">
+          <ul class="alert-list">
+            <li class="alert-item" style="gap:12px">
+              <span style="font-size:12px;background:#fdecea;color:#8f2d1f;border:1px solid #f0b3ad;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">期限超過</span>
+              <span style="flex:1">【農作業】6/17分 収穫担当の割当確定 <span style="color:var(--muted);font-size:12px">— 担当B（スタッフ）</span></span>
+            </li>
+            <li class="alert-item" style="gap:12px">
+              <span style="font-size:12px;background:#fdecea;color:#8f2d1f;border:1px solid #f0b3ad;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">期限超過</span>
+              <span style="flex:1">【広報】Instagram投稿（農作業レポート）公開 <span style="color:var(--muted);font-size:12px">— 担当E（スタッフ）</span></span>
+            </li>
+            <li class="alert-item" style="gap:12px">
+              <span style="font-size:12px;background:#fdf2ec;color:#95470f;border:1px solid #f0c9a6;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">本日</span>
+              <span style="flex:1">【カフェ】週次仕込みチェック（牛乳・食材発注） <span style="color:var(--muted);font-size:12px">— 担当A（スタッフ）</span></span>
+            </li>
+            <li class="alert-item" style="gap:12px">
+              <span style="font-size:12px;background:#fdf2ec;color:#95470f;border:1px solid #f0c9a6;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">本日</span>
+              <span style="flex:1">【物販】Amazon出品ページ写真差替え <span style="color:var(--muted);font-size:12px">— 利用者③（利用者さん）</span></span>
+            </li>
+            <li class="alert-item" style="gap:12px">
+              <span style="font-size:12px;background:#edf7f0;color:#2a7a4c;border:1px solid #b3e5c9;border-radius:999px;padding:2px 8px;font-weight:700;white-space:nowrap">今週</span>
+              <span style="flex:1">【物販】梱包作業（6件分） <span style="color:var(--muted);font-size:12px">— 利用者①②⑤（利用者さん）</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- ====================================================
+         VIEW 2: KANBAN
+         ==================================================== -->
+    <section class="view" id="view-kanban">
+      <div class="section-header">
+        <div class="kicker">Task Board</div>
+        <h2>タスクボード</h2>
+        <p class="sub">事業横断のタスクを4ステージで管理。カードの色・バッジで担当と事業を識別できます。</p>
+      </div>
+
+      <div class="kanban">
+
+        <!-- 未着手 -->
+        <div class="kanban-col">
+          <div class="kanban-col-head">
+            <span class="col-indicator ind-todo"></span>
+            <span class="col-title">未着手</span>
+            <span class="col-count">4</span>
+          </div>
+          <div class="kanban-cards">
+
+            <div class="task-card">
+              <div class="task-title">カフェ週次メニュー更新（7月分）</div>
+              <div class="task-meta">
+                <span class="task-tag biz-cafe" style="background:var(--biz-cafe)">カフェ運営</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当A</span>
+                <span class="task-due">6/22</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">EC新商品の説明文作成（焼き菓子セット）</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-ec)">物販・EC</span>
+                <span class="role-badge role-user">利用者さん</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">利用者④</span>
+                <span class="task-due">6/20</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">農場区画の草刈りスケジュール調整</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-farm)">農作業</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当C</span>
+                <span class="task-due">6/18</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">広報月次レポート（6月分）</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-pr)">広報・SNS</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当E</span>
+                <span class="task-due">6/30</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 作業中 -->
+        <div class="kanban-col">
+          <div class="kanban-col-head">
+            <span class="col-indicator ind-doing"></span>
+            <span class="col-title">作業中</span>
+            <span class="col-count">3</span>
+          </div>
+          <div class="kanban-cards">
+
+            <div class="task-card">
+              <div class="task-title">Amazon出品ページ写真差替え</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-ec)">物販・EC</span>
+                <span class="role-badge role-user">利用者さん</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">利用者③</span>
+                <span class="task-due">6/15</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">カフェ仕込みチェック・食材発注</div>
+              <div class="task-meta">
+                <span class="task-tag biz-cafe" style="background:var(--biz-cafe)">カフェ運営</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当A</span>
+                <span class="task-due">6/15</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">Instagram投稿（農作業体験レポート）下書き</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-pr)">広報・SNS</span>
+                <span class="role-badge role-user">利用者さん</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">利用者⑥</span>
+                <span class="task-due">6/17</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 確認待ち -->
+        <div class="kanban-col">
+          <div class="kanban-col-head">
+            <span class="col-indicator ind-review"></span>
+            <span class="col-title">確認待ち</span>
+            <span class="col-count">3</span>
+          </div>
+          <div class="kanban-cards">
+
+            <div class="task-card overdue">
+              <div class="task-title">6/17分 収穫担当の割当確定</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-farm)">農作業</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">確認: 管理者</span>
+                <span class="task-due overdue">6/13 期限超過</span>
+              </div>
+            </div>
+
+            <div class="task-card overdue">
+              <div class="task-title">Instagram投稿（農作業レポート）公開承認</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-pr)">広報・SNS</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">確認: 管理者</span>
+                <span class="task-due overdue">6/14 期限超過</span>
+              </div>
+            </div>
+
+            <div class="task-card">
+              <div class="task-title">梱包作業 6件 検品確認</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-ec)">物販・EC</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">確認: 担当B</span>
+                <span class="task-due">6/16</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 完了 -->
+        <div class="kanban-col">
+          <div class="kanban-col-head">
+            <span class="col-indicator ind-done"></span>
+            <span class="col-title">完了</span>
+            <span class="col-count">5</span>
+          </div>
+          <div class="kanban-cards">
+
+            <div class="task-card" style="opacity:.72">
+              <div class="task-title">今週の発送5件 梱包完了</div>
+              <div class="task-meta">
+                <span class="task-tag" style="background:var(--biz-ec)">物販・EC</span>
+                <span class="role-badge role-user">利用者さん</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">利用者①②⑤</span>
+                <span class="task-due" style="color:var(--forest)">完了 6/14</span>
+              </div>
+            </div>
+
+            <div class="task-card" style="opacity:.72">
+              <div class="task-title">カフェ先週売上集計・報告</div>
+              <div class="task-meta">
+                <span class="task-tag biz-cafe" style="background:var(--biz-cafe)">カフェ運営</span>
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当A</span>
+                <span class="task-due" style="color:var(--forest)">完了 6/13</span>
+              </div>
+            </div>
+
+            <div class="task-card" style="opacity:.72">
+              <div class="task-title">6月シフト表の配布</div>
+              <div class="task-meta">
+                <span class="role-badge role-staff">スタッフ</span>
+              </div>
+              <div class="task-footer">
+                <span class="task-assignee">担当B</span>
+                <span class="task-due" style="color:var(--forest)">完了 6/10</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         VIEW 3: WEEKLY SCHEDULE
+         ==================================================== -->
+    <section class="view" id="view-schedule">
+      <div class="section-header">
+        <div class="kicker">Weekly View — 2026年6月15日〜6月19日</div>
+        <h2>週間スケジュール</h2>
+        <p class="sub">4事業の予定を横断で確認。重なりや抜けが一目でわかります。</p>
+      </div>
+
+      <!-- Legend -->
+      <div class="week-legend mb-24">
+        <div class="legend-item"><span class="legend-dot" style="background:var(--biz-cafe)"></span>カフェ運営</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--biz-ec)"></span>物販・EC</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--biz-farm)"></span>農作業</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--biz-pr)"></span>広報・SNS</div>
+        <div class="legend-item"><span class="legend-dot" style="background:var(--muted)"></span>全体・管理</div>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:16px">
+
+          <!-- Header row -->
+          <div class="week-header-row" style="margin-bottom:10px">
+            <div></div>
+            <div class="week-day-head today">
+              <div>月</div>
+              <div class="week-day-date" style="color:var(--clay)">15</div>
+            </div>
+            <div class="week-day-head">
+              <div>火</div>
+              <div class="week-day-date">16</div>
+            </div>
+            <div class="week-day-head">
+              <div>水</div>
+              <div class="week-day-date">17</div>
+            </div>
+            <div class="week-day-head">
+              <div>木</div>
+              <div class="week-day-date">18</div>
+            </div>
+            <div class="week-day-head">
+              <div>金</div>
+              <div class="week-day-date">19</div>
+            </div>
+          </div>
+
+          <!-- Time row: 午前 -->
+          <div class="week-grid">
+            <div class="week-time-label">午前</div>
+
+            <!-- 月/午前 -->
+            <div class="week-cell">
+              <div class="week-event ev-cafe">カフェ 仕込み・開店準備</div>
+              <div class="week-event ev-ec">EC 発送5件</div>
+            </div>
+            <!-- 火/午前 -->
+            <div class="week-cell">
+              <div class="week-event ev-cafe">カフェ 通常営業</div>
+              <div class="week-event ev-farm">農作業 畑管理</div>
+            </div>
+            <!-- 水/午前 -->
+            <div class="week-cell">
+              <div class="week-event ev-farm" style="background:#b84b2e">農作業 収穫（担当未確定）</div>
+              <div class="week-event ev-cafe">カフェ 通常営業</div>
+            </div>
+            <!-- 木/午前 -->
+            <div class="week-cell">
+              <div class="week-event ev-cafe">カフェ 通常営業</div>
+              <div class="week-event ev-ec">EC 梱包作業</div>
+            </div>
+            <!-- 金/午前 -->
+            <div class="week-cell">
+              <div class="week-event ev-farm">農作業 草刈り</div>
+              <div class="week-event ev-ec">EC 在庫確認</div>
+            </div>
+          </div>
+
+          <div style="height:6px"></div>
+
+          <!-- Time row: 午後 -->
+          <div class="week-grid">
+            <div class="week-time-label">午後</div>
+
+            <!-- 月/午後 -->
+            <div class="week-cell">
+              <div class="week-event ev-admin">全体朝礼・週次確認</div>
+              <div class="week-event ev-pr">広報 投稿公開</div>
+            </div>
+            <!-- 火/午後 -->
+            <div class="week-cell">
+              <div class="week-event ev-ec">EC 商品撮影</div>
+              <div class="week-event ev-pr">SNS下書き作成</div>
+            </div>
+            <!-- 水/午後 -->
+            <div class="week-cell">
+              <div class="week-event ev-cafe">カフェ 仕込み（木分）</div>
+              <div class="week-event ev-pr">広報 レポート確認</div>
+            </div>
+            <!-- 木/午後 -->
+            <div class="week-cell">
+              <div class="week-event ev-cafe" style="border:2px solid #b84b2e;background:transparent;color:#b84b2e">カフェ スタッフ不足</div>
+              <div class="week-event ev-admin">個別面談（3名）</div>
+            </div>
+            <!-- 金/午後 -->
+            <div class="week-cell">
+              <div class="week-event ev-admin">週次振り返り</div>
+              <div class="week-event ev-pr">来週広報 企画</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         VIEW 4: SHIFT
+         ==================================================== -->
+    <section class="view" id="view-shift">
+      <div class="section-header">
+        <div class="kicker">Shift Management</div>
+        <h2>シフト管理</h2>
+        <p class="sub">スタッフ×曜日の勤務をひとつのグリッドで把握。過不足をハイライトします。</p>
+      </div>
+
+      <div class="card mb-24">
+        <div class="card-header">
+          <h3>2026年6月（第3週）スタッフシフト</h3>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="shift-grid-wrap">
+            <table class="shift-grid">
+              <thead>
+                <tr>
+                  <th class="col-name">スタッフ</th>
+                  <th class="shift-day-head">月<br><small>6/15</small></th>
+                  <th class="shift-day-head">火<br><small>6/16</small></th>
+                  <th class="shift-day-head">水<br><small>6/17</small></th>
+                  <th class="shift-day-head">木<br><small>6/18</small></th>
+                  <th class="shift-day-head">金<br><small>6/19</small></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="col-name">担当A（正社員）</td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                </tr>
+                <tr>
+                  <td class="col-name">担当B（パート）</td>
+                  <td><span class="shift-cell-in">09:00–13:00</span></td>
+                  <td><span class="shift-cell-out">−</span></td>
+                  <td><span class="shift-cell-in">09:00–13:00</span></td>
+                  <td><span class="shift-cell-out">−</span></td>
+                  <td><span class="shift-cell-in">09:00–13:00</span></td>
+                </tr>
+                <tr>
+                  <td class="col-name">担当C（パート）</td>
+                  <td><span class="shift-cell-out">−</span></td>
+                  <td><span class="shift-cell-in">13:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">13:00–17:00</span></td>
+                  <td><span class="shift-cell-out">−</span></td>
+                </tr>
+                <tr>
+                  <td class="col-name">担当D（支援員）</td>
+                  <td><span class="shift-cell-in">10:00–16:00</span></td>
+                  <td><span class="shift-cell-in">10:00–16:00</span></td>
+                  <td><span class="shift-cell-out">休暇</span></td>
+                  <td><span class="shift-cell-out">休暇</span></td>
+                  <td><span class="shift-cell-in">10:00–16:00</span></td>
+                </tr>
+                <tr>
+                  <td class="col-name">担当E（支援員）</td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                  <td><span class="shift-cell-out">−</span></td>
+                  <td><span class="shift-cell-in">09:00–17:00</span></td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr class="shift-total-row">
+                  <td class="col-name" style="font-size:12px;color:var(--muted)">当日稼働人数</td>
+                  <td>4名 <span class="shift-surplus">+1</span></td>
+                  <td>3名</td>
+                  <td style="background:#fdecea">3名 <span class="shift-shortage">水: 収穫未確定</span></td>
+                  <td style="background:#fdecea">2名 <span class="shift-shortage">−2名不足</span></td>
+                  <td>4名</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>シフト状況メモ</h3>
+        </div>
+        <div class="card-body">
+          <ul class="alert-list">
+            <li class="alert-item">
+              <span class="alert-dot dot-warn"></span>
+              <span><strong>木曜午後</strong>のカフェ運営スタッフが2名不足。担当D・E休暇重複。来週までに代替調整が必要。</span>
+            </li>
+            <li class="alert-item">
+              <span class="alert-dot dot-warn"></span>
+              <span><strong>水曜農作業</strong>の収穫担当がまだ未確定。担当Cが候補だが未確認。今日中に確定を。</span>
+            </li>
+            <li class="alert-item">
+              <span class="alert-dot dot-ok"></span>
+              <span>月・金は適正人数。梱包・発送・農作業いずれも通常体制で進行可能。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         VIEW 5: ROLE ASSIGNMENT
+         ==================================================== -->
+    <section class="view" id="view-role">
+      <div class="section-header">
+        <div class="kicker">Role & Assignment</div>
+        <h2>役割・担当割当</h2>
+        <p class="sub">スタッフ1名が担当する利用者さんを可視化。1名あたり最大6名を目安に設定しています。</p>
+      </div>
+
+      <div class="role-grid mb-24">
+
+        <div class="role-card">
+          <div class="staff-name">担当A</div>
+          <div class="staff-title">正社員 / カフェ運営リーダー</div>
+          <div class="staff-biz">
+            <span class="biz-tag biz-cafe">カフェ運営</span>
+            <span class="biz-tag biz-ec">物販・EC</span>
+          </div>
+          <div class="user-chips">
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者①</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者②</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者③</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者④</span>
+          </div>
+        </div>
+
+        <div class="role-card">
+          <div class="staff-name">担当B</div>
+          <div class="staff-title">パート / 農作業サブリーダー</div>
+          <div class="staff-biz">
+            <span class="biz-tag biz-farm">農作業</span>
+          </div>
+          <div class="user-chips">
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑤</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑥</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑦</span>
+          </div>
+        </div>
+
+        <div class="role-card">
+          <div class="staff-name">担当C</div>
+          <div class="staff-title">パート / 物販・EC担当</div>
+          <div class="staff-biz">
+            <span class="biz-tag biz-ec">物販・EC</span>
+            <span class="biz-tag biz-farm">農作業</span>
+          </div>
+          <div class="user-chips">
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑧</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑨</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑩</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑪</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑫</span>
+          </div>
+        </div>
+
+        <div class="role-card">
+          <div class="staff-name">担当D</div>
+          <div class="staff-title">支援員 / 広報・SNS担当</div>
+          <div class="staff-biz">
+            <span class="biz-tag biz-pr">広報・SNS</span>
+            <span class="biz-tag biz-cafe">カフェ運営</span>
+          </div>
+          <div class="user-chips">
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑬</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑭</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑮</span>
+          </div>
+        </div>
+
+        <div class="role-card">
+          <div class="staff-name">担当E</div>
+          <div class="staff-title">支援員 / 全事業横断サポート</div>
+          <div class="staff-biz">
+            <span class="biz-tag biz-cafe">カフェ運営</span>
+            <span class="biz-tag biz-farm">農作業</span>
+            <span class="biz-tag biz-pr">広報・SNS</span>
+          </div>
+          <div class="user-chips">
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑯</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑰</span>
+            <span class="user-chip"><span class="chip-icon">👤</span>利用者⑱</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>担当割当の概要</h3>
+        </div>
+        <div class="card-body">
+          <ul class="alert-list">
+            <li class="alert-item">
+              <span class="alert-dot dot-ok"></span>
+              <span>担当Cの受持ちが5名（上限付近）。新規利用者の受入時は担当Dか担当Eへの移行を検討。</span>
+            </li>
+            <li class="alert-item">
+              <span class="alert-dot dot-info"></span>
+              <span>担当D・Eは複数事業を兼任。スケジュールの重複が起きやすいため週次でシフトと照合が必要。</span>
+            </li>
+            <li class="alert-item">
+              <span class="alert-dot dot-ok"></span>
+              <span>全18名の利用者さんが各担当に割り当て済み。担当漏れなし。</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================
+         VIEW 6: PR / CONTENT
+         ==================================================== -->
+    <section class="view" id="view-pr">
+      <div class="section-header">
+        <div class="kicker">Content & PR</div>
+        <h2>広報の進行</h2>
+        <p class="sub">投稿コンテンツの下書き〜公開までを管理。AIで下書きを自動生成できます。</p>
+      </div>
+
+      <!-- AI Draft tool -->
+      <div class="ai-draft-area">
+        <h3>AIで投稿の下書きを作る</h3>
+        <p class="ai-desc">事業を選んで「下書き生成」を押すと、AIが投稿文のたたき台を作成します。</p>
+        <div class="ai-controls">
+          <select class="select-biz" id="biz-select">
+            <option value="cafe">カフェ運営</option>
+            <option value="ec">物販・EC</option>
+            <option value="farm">農作業</option>
+            <option value="pr">広報・SNS全般</option>
+          </select>
+          <button class="btn-ai" id="btn-ai-draft" onclick="runAiDraft()">
+            <span class="ai-icon">✦</span> 下書きを生成する
+          </button>
+          <div class="ai-loading" id="ai-loading">
+            <div class="spinner"></div>
+            <span>AIが文章を考えています…</span>
+          </div>
+        </div>
+        <div class="draft-result" id="draft-result">
+          <textarea class="draft-textarea" id="draft-textarea" rows="6"></textarea>
+          <div class="draft-actions">
+            <button class="btn-outline" onclick="copyDraft()">コピーする</button>
+            <button class="btn-outline" onclick="clearDraft()">クリア</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PR Kanban -->
+      <div class="pr-kanban">
+
+        <!-- 下書き -->
+        <div class="pr-col">
+          <div class="pr-col-head">
+            <span class="col-indicator ind-todo"></span>
+            <span class="col-title">下書き</span>
+            <span class="col-count">3</span>
+          </div>
+          <div class="pr-cards">
+
+            <div class="pr-card">
+              <div class="pr-title">農作業体験レポート（6月第2週）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-farm);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">農作業</span>
+                <span class="role-badge role-user">利用者さん制作</span>
+              </div>
+              <div class="pr-date">作成: 6/14 — 担当E確認予定</div>
+            </div>
+
+            <div class="pr-card">
+              <div class="pr-title">カフェ 新メニュー告知（7月）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-cafe);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">カフェ運営</span>
+                <span class="role-badge role-staff">スタッフ制作</span>
+              </div>
+              <div class="pr-date">作成: 6/13 — 写真待ち</div>
+            </div>
+
+            <div class="pr-card">
+              <div class="pr-title">物販 商品紹介（焼き菓子セット）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-ec);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">物販・EC</span>
+                <span class="role-badge role-user">利用者さん制作</span>
+              </div>
+              <div class="pr-date">作成: 6/12</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 確認待ち -->
+        <div class="pr-col">
+          <div class="pr-col-head">
+            <span class="col-indicator ind-review"></span>
+            <span class="col-title">確認待ち</span>
+            <span class="col-count">2</span>
+          </div>
+          <div class="pr-cards">
+
+            <div class="pr-card" style="border-left:3px solid #b84b2e">
+              <div class="pr-title">農作業 6月まとめ記事（ブログ）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-farm);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">農作業</span>
+                <span class="role-badge role-staff">スタッフ制作</span>
+              </div>
+              <div class="pr-date" style="color:#b84b2e;font-weight:700">3日経過 — 管理者確認待ち</div>
+            </div>
+
+            <div class="pr-card" style="border-left:3px solid var(--clay)">
+              <div class="pr-title">Instagram投稿（農作業レポート写真）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-pr);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">広報・SNS</span>
+                <span class="role-badge role-user">利用者さん制作</span>
+              </div>
+              <div class="pr-date" style="color:var(--clay);font-weight:700">1日経過 — 管理者確認待ち</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 公開済み -->
+        <div class="pr-col">
+          <div class="pr-col-head">
+            <span class="col-indicator ind-done"></span>
+            <span class="col-title">公開済み</span>
+            <span class="col-count">4</span>
+          </div>
+          <div class="pr-cards">
+
+            <div class="pr-card" style="opacity:.72">
+              <div class="pr-title">カフェ 週替わりランチ告知</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-cafe);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">カフェ運営</span>
+              </div>
+              <div class="pr-date" style="color:var(--forest)">公開: 6/13</div>
+            </div>
+
+            <div class="pr-card" style="opacity:.72">
+              <div class="pr-title">物販 出荷報告（5月まとめ）</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-ec);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">物販・EC</span>
+              </div>
+              <div class="pr-date" style="color:var(--forest)">公開: 6/10</div>
+            </div>
+
+            <div class="pr-card" style="opacity:.72">
+              <div class="pr-title">農作業体験 見学会レポート</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-farm);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">農作業</span>
+              </div>
+              <div class="pr-date" style="color:var(--forest)">公開: 6/8</div>
+            </div>
+
+            <div class="pr-card" style="opacity:.72">
+              <div class="pr-title">スタッフ紹介シリーズ vol.3</div>
+              <div class="pr-meta">
+                <span class="task-tag" style="background:var(--biz-pr);color:#fff;font-size:10.5px;padding:2px 7px;border-radius:999px">広報・SNS</span>
+              </div>
+              <div class="pr-date" style="color:var(--forest)">公開: 6/5</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+document.querySelectorAll('.nav-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    var target = this.dataset.view;
+    switchView(target);
+  });
+  item.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      switchView(this.dataset.view);
+    }
+  });
+});
+
+function switchView(target) {
+  // deactivate all nav items
+  document.querySelectorAll('.nav-item').forEach(function(n) {
+    n.classList.remove('active');
+    n.removeAttribute('aria-current');
+  });
+  // activate target nav item
+  var activeNav = document.querySelector('.nav-item[data-view="' + target + '"]');
+  if (activeNav) {
+    activeNav.classList.add('active');
+    activeNav.setAttribute('aria-current', 'page');
+  }
+  // hide all views
+  document.querySelectorAll('.view').forEach(function(v) {
+    v.classList.remove('active');
+  });
+  // show target view
+  var targetView = document.getElementById('view-' + target);
+  if (targetView) {
+    targetView.classList.add('active');
+    // scroll to top
+    document.getElementById('content').scrollTop = 0;
+  }
+}
+
+/* ============================================================
+   AI DRAFT MOCK
+   ============================================================ */
+var drafts = {
+  cafe: [
+    '今週のカフェは、旬の野菜をたっぷり使ったランチメニューをご用意しています。\n\n地元の農場から届いたばかりのお野菜を、利用者さんたちが心を込めて調理しました。\n毎日少しずつ変わるお献立を、ぜひ味わいにいらしてください。\n\n#就労支援 #カフェ #地元野菜 #心のこもった一皿',
+    'こんにちは！本日のカフェランチは、スタッフと利用者さんが協力して作り上げた日替わり定食です。\n\n食材はすべて地元産。食べることで、地域とつながれる一皿をお届けします。\n\n営業時間: 11:30〜14:00（L.O. 13:30）\n#手作りランチ #地域とつながる #就労支援カフェ'
+  ],
+  ec: [
+    '新商品のご紹介です。\n\n利用者さんが丁寧に梱包した「焼き菓子セット」が入荷しました。\nクッキー・マドレーヌ・フィナンシェの3種類。手のぬくもりが伝わるひとつひとつを、大切な方へのギフトにいかがでしょうか。\n\nオンラインショップにて販売中です。\n#ハンドメイド #焼き菓子 #ギフト #就労支援 #丁寧な仕事',
+    '新しいご注文、ありがとうございます。\n\n今週も利用者さんたちが心を込めて梱包・発送作業を進めています。\n商品が届いた際は、ぜひ感想をお寄せください。皆さんの声が次の仕事の励みになります。\n\n#EC発送 #手仕事 #利用者さんの作品'
+  ],
+  farm: [
+    '今朝の農作業レポートをお届けします。\n\n朝露の残る畑で、利用者さんたちが元気に収穫作業を行いました。今週は夏野菜の収穫がピーク。汗をかきながら、でも笑顔で取り組む姿がとても印象的でした。\n\n収穫した野菜は、カフェや物販でご提供します。ぜひ手にとってみてください。\n\n#農作業 #就労支援 #夏野菜 #収穫 #汗と笑顔',
+    '今日の畑は気持ちのいい天気でした。\n\n土を耕し、草を抜き、植物の声を聞きながら作業する。シンプルだけど、身体を使う農作業には不思議な充実感があります。\n\n利用者さんたちの真剣な眼差しと、作業後の達成感あふれる表情——毎回、こちらが元気をもらっています。\n\n#農作業日記 #土と向き合う #就労支援 #摂津市'
+  ],
+  pr: [
+    '私たちの事業所では、カフェ・物販・農作業・広報の4つの事業を通じて、一人ひとりが自分らしく働ける環境づくりに取り組んでいます。\n\n今月の活動をまとめたレポートを公開しました。ぜひご覧ください。\n\n#就労支援B型 #自分らしく働く #地域とつながる #4事業 #月次レポート',
+    '先週の振り返りをお届けします。\n\nカフェでは新メニューが好評、物販は出荷件数が先月比120%、農作業チームは夏野菜の収穫が本格化——それぞれのチームが力を発揮した一週間でした。\n\n利用者さんひとりひとりの成長を実感しています。来週も一緒に頑張りましょう。\n\n#週次振り返り #就労支援 #チームで働く'
+  ]
+};
+
+function runAiDraft() {
+  var btn = document.getElementById('btn-ai-draft');
+  var loading = document.getElementById('ai-loading');
+  var result = document.getElementById('draft-result');
+  var textarea = document.getElementById('draft-textarea');
+  var biz = document.getElementById('biz-select').value;
+
+  btn.disabled = true;
+  loading.classList.add('visible');
+  result.classList.remove('visible');
+
+  var delay = 1800 + Math.random() * 900;
+  setTimeout(function() {
+    var pool = drafts[biz] || drafts['pr'];
+    var text = pool[Math.floor(Math.random() * pool.length)];
+
+    loading.classList.remove('visible');
+    textarea.value = text;
+    result.classList.add('visible');
+    btn.disabled = false;
+  }, delay);
+}
+
+function copyDraft() {
+  var textarea = document.getElementById('draft-textarea');
+  if (navigator.clipboard && textarea.value) {
+    navigator.clipboard.writeText(textarea.value);
+  } else {
+    textarea.select();
+    document.execCommand('copy');
+  }
+}
+
+function clearDraft() {
+  document.getElementById('draft-textarea').value = '';
+  document.getElementById('draft-result').classList.remove('visible');
+}
+</script>
+</body>
+</html>
