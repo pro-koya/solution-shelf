@@ -209,8 +209,16 @@
       return `<defs>
         <marker id="ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="${C.thread}"/></marker>
         <marker id="ahs" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="${SEG}"/></marker>
+        <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#1f261d" flood-opacity="0.16"/></filter>
+        <filter id="softlg" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#1f261d" flood-opacity="0.20"/></filter>
       </defs>`;
     }
+    // 影つきの丸ノード（中央ハブ用・深みを出す）
+    function hubCircle(cx,cy,r,fill,cls){ return `<g class="${cls||""}"><circle cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" filter="url(#softlg)"/><ellipse cx="${cx}" cy="${cy-r*0.42}" rx="${r*0.72}" ry="${r*0.4}" fill="#fff" opacity=".13"/></g>`; }
+    // 影つきカード
+    function card(x,y,w,h,opts){ opts=opts||{}; return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${opts.rx||12}" fill="${opts.fill||C.paper}" stroke="${opts.stroke||C.line}" stroke-width="${opts.sw||1}" filter="${opts.shadow===false?'':'url(#soft)'}"/>`; }
+    // 通知バッジ（赤丸＋数字）
+    function notif(cx,cy,n){ return `<g class="pop" style="--pdelay:1s"><circle cx="${cx}" cy="${cy}" r="15" fill="#d6452f" filter="url(#soft)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">${n}</text></g>`; }
     // ふせん風チップ（左の散らばった道具に使う）
     function chip(x,y,w,t,iconName,popDelay){
       const h=42, ix=x+20;
@@ -268,16 +276,20 @@
         <g class="pop" style="--pdelay:1s"><rect x="650" y="150" width="150" height="56" rx="12" fill="${C.paper}" stroke="${C.line}"/>${icon("note",678,178,24,C.clay,{sw:1.8})}${txt(770,184,15,C.ink,"二重入力")}</g>
       </svg>`;
     }
-    function painBtype(){ // btype-ai: 事業×スタッフ×利用者の予定が管理者ひとりに集中
-      const biz=[["カフェ",60],["物販",150],["農作業",240],["広報",330]].map(([t,y],i)=>
-        `${chip(40,y,118,t,["plate","cart","leaf","note"][i],.2+i*.1)}${drawLine(158,y,540,180,C.thread,2,.4+i*.1)}`).join("");
-      const sources=[["紙・Excel",250,55,"note"],["LINE",250,305,"chat"],["TimeTree",470,40,"cal"]].map(([t,x,y,ic],i)=>
-        `${chip(x,y,118,t,ic,.5+i*.1)}${drawLine(x+(x<400?118:0),y+(y<180?22:-22),540,180,C.thread,2,.55+i*.1)}`).join("");
-      return `<svg class="dgm" viewBox="0 0 860 360" role="img" aria-label="複数の事業とスタッフ・利用者の予定やタスクが紙・Excel・LINE・TimeTreeを経由してすべて管理者ひとりに集中している図">
-        ${svgDefs()}${biz}${sources}
-        <g class="pop" style="--pdelay:.85s"><circle cx="640" cy="180" r="66" fill="${SEG}"/>${icon("person",640,166,44,"#fff",{sw:1.8})}</g>
-        ${txt(640,244,16,C.ink,"管理者ひとり",{family:MIN,weight:700,cls:"fade",fdelay:1})}
-        <g class="pop float" style="--pdelay:1.1s"><circle cx="694" cy="128" r="18" fill="${C.clay}"/>${txt(694,136,24,"#fff","!",{weight:700})}</g>
+    function painBtype(){ // btype-ai: 記録がバラバラ → 管理者ひとりに集中（通知の山）
+      const chans=[["紙・Excel","note",86],["LINE","chat",161],["TimeTree","cal",236],["電話・口頭","phone",311]];
+      const cards=chans.map(([t,ic,y],i)=>
+        `<g class="pop" style="--pdelay:${.2+i*.1}s">${card(34,y-26,182,52)}${icon(ic,68,y,22,SEG,{sw:1.7})}<text x="96" y="${y+6}" font-size="18" fill="${C.ink}" text-anchor="start">${esc(t)}</text></g>`
+        +`${drawLine(220,y,532,198,C.thread,2.4,.45+i*.08)}`).join("");
+      return `<svg class="dgm" viewBox="0 0 860 396" role="img" aria-label="事業・スタッフ・利用者の予定やタスクが紙・Excel・LINE・TimeTree・電話を経由してすべて管理者ひとりに集中している図">
+        ${svgDefs()}
+        ${txt(125,40,14,C.muted,"事業・スタッフ・利用者の予定／タスク",{cls:"fade",fdelay:.2})}
+        ${cards}
+        ${hubCircle(612,198,78,SEG,"pop")}
+        ${icon("person",612,178,56,"#fff",{sw:1.8,cls:"float"})}
+        ${notif(672,136,"12")}${notif(694,180,"8")}
+        ${txt(612,300,18,C.ink,"管理者ひとり",{family:MIN,weight:700,cls:"fade",fdelay:.95})}
+        ${txt(612,324,14,C.clay,"確認も調整も、全部ここに。",{cls:"fade",fdelay:1.05})}
       </svg>`;
     }
     function painYoyaku(){ // yoyaku-base: 予約・シフト・発注がバラバラ流入→店主が追われる
@@ -351,14 +363,29 @@
           ${txt(725,80,12,"#dfeae3","ひとつに統合")}</g>
       </svg>`;
     }
-    function solBtype(){ // OS hub → 管理者/スタッフ/利用者の3役 + 事業が整然
-      const roles=[["管理者",110,"person"],["スタッフ",185,"person"],["利用者さん",260,"person"]].map(([t,y,ic],i)=>
-        `${drawLine(534,185,712,y,SEG,2.5,.85+i*.08)}<g class="pop float" style="--pdelay:${.95+i*.08}s"><circle cx="746" cy="${y}" r="24" fill="${C.paper}" stroke="${SEG}" stroke-width="2"/>${icon(ic,746,y,26,SEG,{sw:1.7})}</g>${txt(800,y+5,13,C.muted,t,{anchor:"start",cls:"fade",fdelay:1.2+i*.06})}`).join("");
-      const biz=[["カフェ","plate"],["物販","cart"],["農作業","leaf"],["広報","note"]].map(([t,ic],i)=>
-        `<g class="pop" style="--pdelay:${.2+i*.08}s"><rect x="${40+i*70}" y="40" width="60" height="50" rx="9" fill="${C.paperSoft}" stroke="${SEG}" stroke-width="1.6"/>${icon(ic,70+i*70,60,24,SEG,{sw:1.6})}</g>${drawLine(70+i*70,90,430,118,SEG,2,.35+i*.07)}`).join("");
-      return `<svg class="dgm" viewBox="0 0 860 360" role="img" aria-label="ひとつのOSに事業が整然と並び、管理者・スタッフ・利用者さんの3つの役割へ役割別に配信される図">
-        ${svgDefs()}${biz}${hubBox("ひとつのOS","見える化＋AI段取り")}${roles}
-        ${txt(110,108,12,C.muted,"事業が整然と並ぶ",{anchor:"start",cls:"fade",fdelay:.9})}</svg>`;
+    function solBtype(){ // ひとつの業務管理OS（画面モックを主役）→ 役割ごとの画面へ。twocol列に収まる縦長構成
+      const sx=66,sy=34,sw=488,sh=300;
+      const ry=[sy+156,sy+204,sy+252], dot=[SEG,"#bf6438","#3f7d5a"];
+      const pill=[["確認待ち","#8c4b02","#fcf3e6"],["作業中","#1f5fa8","#dbeafe"],["完了","#2e844a","#ddf5dd"]];
+      const rows=ry.map((y,i)=>`<circle cx="${sx+36}" cy="${y}" r="6" fill="${dot[i]}"/><rect x="${sx+58}" y="${y-7}" width="${Math.round(sw*0.46)}" height="14" rx="7" fill="#ece9e3"/><rect x="${sx+sw-138}" y="${y-15}" width="112" height="30" rx="15" fill="${pill[i][2]}"/><text x="${sx+sw-82}" y="${y+5}" text-anchor="middle" font-size="16" fill="${pill[i][1]}">${pill[i][0]}</text>`).join("");
+      const screen=`<g class="pop" style="--pdelay:.5s">
+        <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="20" fill="#fff" filter="url(#softlg)"/>
+        <clipPath id="scrclip"><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="20"/></clipPath>
+        <g clip-path="url(#scrclip)">
+          <rect x="${sx}" y="${sy}" width="${sw}" height="52" fill="${SEG}"/>
+          <circle cx="${sx+24}" cy="${sy+26}" r="5" fill="#fff" opacity=".9"/><circle cx="${sx+44}" cy="${sy+26}" r="5" fill="#fff" opacity=".55"/><circle cx="${sx+64}" cy="${sy+26}" r="5" fill="#fff" opacity=".55"/>
+          <text x="${sx+84}" y="${sy+33}" font-size="19" fill="#fff" font-weight="700">業務管理OS</text>
+          <text x="${sx+36}" y="${sy+98}" font-size="17" fill="${C.muted}">今日のタスク</text>
+          <line x1="${sx+36}" y1="${sy+116}" x2="${sx+sw-36}" y2="${sy+116}" stroke="${C.line}"/>
+          ${rows}
+        </g>
+        <rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="20" fill="none" stroke="${C.line}"/>
+      </g>`;
+      const roles=["管理者","スタッフ","利用者さん"].map((t,i)=>{const cx=158+i*152;return `<g class="pop" style="--pdelay:${.95+i*.1}s"><rect x="${cx-68}" y="404" width="136" height="46" rx="23" fill="${C.paper}" stroke="${C.line}" filter="url(#soft)"/>${icon("person",cx-42,427,21,SEG,{sw:1.7})}<text x="${cx-22}" y="432" font-size="15" fill="${C.ink}" text-anchor="start">${esc(t)}</text></g>`;}).join("");
+      return `<svg class="dgm" viewBox="0 0 620 466" role="img" aria-label="ひとつの業務管理OSの画面に集約され、管理者・スタッフ・利用者さんそれぞれの画面で使える図">
+        ${svgDefs()}${screen}
+        ${txt(310,382,15,SEG,"そのまま、役割ごとの画面へ",{cls:"fade",fdelay:.85})}
+        ${roles}</svg>`;
     }
     function solYoyaku(){ // 1つにまとまり、落ち着いたお店
       const inputs=[["予約",90],["シフト",170],["発注",250]].map(([t,y],i)=>
