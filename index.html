@@ -5,202 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>解の棚 — Solution Shelf</title>
 <meta name="description" content="現場の面倒に、選んで効く道具を。中小事業者向けの業務改善パッケージ・カタログ。" />
-<meta name="robots" content="noindex,nofollow" /><!-- 限定公開: URLを知る人だけ。検索インデックスはしない -->
+<meta name="robots" content="noindex,nofollow" />
 <meta name="theme-color" content="#244b40" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --paper: #f6f2ea;
-    --paper-2: #efe9dd;
-    --surface: #fffdf8;
-    --ink: #1f261d;
-    --muted: #6f685b;
-    --line: #e4dccd;
-    --forest: #2f5d4f;
-    --forest-deep: #244b40;
-    --clay: #bf6438;
-    --clay-soft: #d98a5c;
-    /* segment hues */
-    --seg-農業: #3f7d5a;
-    --seg-Btype: #3a6ea5;
-    --seg-飲食: #bf6438;
-    --seg-小売: #876aae;
-    --radius: 14px;
-    --shadow: 0 1px 2px rgba(31,38,29,.05), 0 14px 30px -18px rgba(31,38,29,.28);
-    --shadow-lift: 0 2px 6px rgba(31,38,29,.07), 0 26px 50px -22px rgba(31,38,29,.36);
-    --display: "Shippori Mincho", "Hiragino Mincho ProN", serif;
-    --body: "Zen Kaku Gothic New", system-ui, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    --paper:#f6f2ea; --paper-2:#efe9dd; --surface:#fffdf8; --ink:#1f261d; --muted:#6f685b; --line:#e4dccd;
+    --forest:#2f5d4f; --forest-deep:#244b40; --clay:#bf6438;
+    --seg-農業:#3f7d5a; --seg-Btype:#3a6ea5; --seg-飲食:#bf6438; --seg-小売:#876aae;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(31,38,29,.05), 0 14px 30px -18px rgba(31,38,29,.28);
+    --shadow-lift:0 2px 6px rgba(31,38,29,.07), 0 26px 50px -22px rgba(31,38,29,.36);
+    --display:"Shippori Mincho","Hiragino Mincho ProN",serif;
+    --body:"Zen Kaku Gothic New",system-ui,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
   }
+  *{box-sizing:border-box;}
+  body{ margin:0; border-top:4px solid var(--forest); border-image:linear-gradient(90deg,var(--forest-deep),var(--clay)) 1;
+    font-family:var(--body); color:var(--ink); background-color:var(--paper); line-height:1.7; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(900px 500px at 88% -8%,rgba(191,100,56,.10),transparent 60%),radial-gradient(820px 520px at -6% 8%,rgba(47,93,79,.12),transparent 55%);
+    background-attachment:fixed; }
+  body::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .wrap{ position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:0 22px; }
 
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    border-top: 4px solid var(--forest);
-    border-image: linear-gradient(90deg, var(--forest-deep), var(--clay)) 1;
-    font-family: var(--body);
-    color: var(--ink);
-    background-color: var(--paper);
-    background-image:
-      radial-gradient(900px 500px at 88% -8%, rgba(191,100,56,.10), transparent 60%),
-      radial-gradient(820px 520px at -6% 8%, rgba(47,93,79,.12), transparent 55%);
-    background-attachment: fixed;
-    line-height: 1.7;
-    -webkit-font-smoothing: antialiased;
-  }
-  /* faint grain */
-  body::before {
-    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .035;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 22px; }
+  header.top{ padding:58px 0 26px; }
+  .kicker{ font-size:12px; letter-spacing:.42em; text-transform:uppercase; color:var(--clay); font-weight:700; margin:0 0 14px; }
+  h1.brand{ font-family:var(--display); font-weight:700; letter-spacing:.04em; font-size:clamp(38px,7vw,66px); line-height:1.04; margin:0; color:var(--forest-deep); }
+  .brand .dot{ color:var(--clay); }
+  .tagline{ font-family:var(--display); font-size:clamp(17px,2.4vw,22px); color:var(--ink); margin:18px 0 8px; font-weight:500; }
+  .sub{ color:var(--muted); max-width:58ch; margin:0; font-size:14.5px; }
+  .rule{ height:1px; background:linear-gradient(90deg,var(--line),transparent); margin:30px 0 0; }
 
-  /* ---------- header ---------- */
-  header.top { padding: 58px 0 26px; }
-  .kicker {
-    font-size: 12px; letter-spacing: .42em; text-transform: uppercase;
-    color: var(--clay); font-weight: 700; margin: 0 0 14px;
-  }
-  h1.brand {
-    font-family: var(--display); font-weight: 700; letter-spacing: .04em;
-    font-size: clamp(38px, 7vw, 66px); line-height: 1.04; margin: 0;
-    color: var(--forest-deep);
-  }
-  .brand .dot { color: var(--clay); }
-  .tagline {
-    font-family: var(--display); font-size: clamp(17px, 2.4vw, 22px);
-    color: var(--ink); margin: 18px 0 8px; font-weight: 500;
-  }
-  .sub { color: var(--muted); max-width: 56ch; margin: 0; font-size: 14.5px; }
-  .rule { height: 1px; background: linear-gradient(90deg, var(--line), transparent); margin: 30px 0 0; }
+  .filters{ display:flex; flex-wrap:wrap; gap:9px; align-items:center; padding:24px 0 30px; }
+  .filters .lbl{ font-size:12px; letter-spacing:.2em; color:var(--muted); margin-right:6px; }
+  .chip{ font-family:var(--body); font-size:13.5px; font-weight:500; cursor:pointer; border:1px solid var(--line);
+    background:var(--surface); color:var(--ink); padding:7px 15px; border-radius:999px; transition:all .18s ease; line-height:1; }
+  .chip:hover{ border-color:var(--forest); color:var(--forest-deep); }
+  .chip .n{ color:var(--muted); font-size:11.5px; margin-left:6px; }
+  .chip[aria-pressed="true"]{ background:var(--forest-deep); border-color:var(--forest-deep); color:#fff; }
+  .chip[aria-pressed="true"] .n{ color:rgba(255,255,255,.7); }
 
-  /* ---------- filter ---------- */
-  .filters { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; padding: 24px 0 30px; }
-  .filters .lbl { font-size: 12px; letter-spacing: .2em; color: var(--muted); margin-right: 6px; }
-  .chip {
-    font-family: var(--body); font-size: 13.5px; font-weight: 500; cursor: pointer;
-    border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-    padding: 7px 15px; border-radius: 999px; transition: all .18s ease; line-height: 1;
-  }
-  .chip:hover { border-color: var(--forest); color: var(--forest-deep); }
-  .chip .n { color: var(--muted); font-size: 11.5px; margin-left: 6px; }
-  .chip[aria-pressed="true"] {
-    background: var(--forest-deep); border-color: var(--forest-deep); color: #fff;
-  }
-  .chip[aria-pressed="true"] .n { color: rgba(255,255,255,.7); }
+  /* 均等グリッド：全カード同じ幅・行内は同じ高さ */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:18px; padding-bottom:60px; align-items:stretch; }
+  .card{ position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px 22px 20px; cursor:pointer; box-shadow:var(--shadow); transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    display:flex; flex-direction:column; min-height:248px; opacity:0; transform:translateY(14px); animation:rise .5s forwards; }
+  @keyframes rise{ to{ opacity:1; transform:none; } }
+  .card:hover{ transform:translateY(-4px); box-shadow:var(--shadow-lift); border-color:#d8cdb8; }
 
-  /* ---------- grid ---------- */
-  .grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 18px; padding-bottom: 60px;
-  }
-  .card {
-    position: relative; background: var(--surface); border: 1px solid var(--line);
-    border-radius: var(--radius); padding: 22px 22px 20px; cursor: pointer;
-    box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-    display: flex; flex-direction: column; min-height: 232px;
-    opacity: 0; transform: translateY(14px); animation: rise .5s forwards;
-  }
-  @keyframes rise { to { opacity: 1; transform: none; } }
-  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: #d8cdb8; }
-  .card.lead { grid-column: span 2; min-height: 248px; border-color: #cdbf9f;
-    background:
-      linear-gradient(180deg, rgba(47,93,79,.05), transparent 40%), var(--surface); }
-  @media (max-width: 720px) { .card.lead { grid-column: span 1; } }
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:12px; }
+  .seg{ font-size:12px; font-weight:700; letter-spacing:.08em; padding:4px 11px; border-radius:999px; color:#fff; white-space:nowrap; }
+  .badge{ font-size:11.5px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+  .b-ready{ background:var(--forest); color:#fff; }
+  .b-prep{ background:#fbf0db; color:#95621f; border:1px solid #ecd09a; }
+  .b-design{ background:#eef1f6; color:#3a567e; border:1px solid #cdd8e8; }
+  .b-consult{ background:#f1efe9; color:var(--muted); border:1px solid var(--line); }
+  .rec{ display:inline-block; font-family:var(--display); font-size:11.5px; letter-spacing:.16em; color:var(--clay); font-weight:700; margin-bottom:6px; }
+  .card h3{ font-family:var(--display); font-weight:600; font-size:20px; line-height:1.34; margin:0 0 10px; color:var(--ink); letter-spacing:.01em; }
+  .one{ color:var(--muted); font-size:14px; margin:0 0 16px; flex:1; }
+  .card-foot{ display:flex; flex-direction:column; gap:6px; border-top:1px dashed var(--line); padding-top:13px; }
+  .meta-row{ display:flex; gap:8px; font-size:12.5px; }
+  .meta-row .k{ color:var(--clay); font-weight:700; flex:0 0 auto; letter-spacing:.04em; }
+  .meta-row .v{ color:var(--ink); }
+  .more{ margin-top:12px; font-size:12.5px; color:var(--forest-deep); font-weight:700; letter-spacing:.04em; }
+  .more::after{ content:" →"; }
+  .empty{ grid-column:1 / -1; text-align:center; color:var(--muted); padding:50px 0; font-size:14px; }
 
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
-  .seg {
-    font-size: 12px; font-weight: 700; letter-spacing: .08em; padding: 4px 11px;
-    border-radius: 999px; color: #fff; white-space: nowrap;
-  }
-  .badge {
-    font-size: 11.5px; font-weight: 700; letter-spacing: .06em; padding: 4px 10px;
-    border-radius: 999px; white-space: nowrap;
-  }
-  .b-ready   { background: var(--forest); color: #fff; }
-  .b-prep    { background: #fbf0db; color: #95621f; border: 1px solid #ecd09a; }
-  .b-design  { background: #eef1f6; color: #3a567e; border: 1px solid #cdd8e8; }
-  .b-consult { background: #f1efe9; color: var(--muted); border: 1px solid var(--line); }
-
-  .lead-ribbon {
-    display: inline-block; font-family: var(--display); font-size: 12px; letter-spacing: .2em;
-    color: var(--clay); font-weight: 700; margin-bottom: 8px;
-  }
-  .card h3 {
-    font-family: var(--display); font-weight: 600; font-size: 21px; line-height: 1.32;
-    margin: 0 0 10px; color: var(--ink); letter-spacing: .01em;
-  }
-  .card.lead h3 { font-size: 25px; }
-  .one { color: var(--muted); font-size: 14px; margin: 0 0 16px; flex: 1; }
-  .card-foot { display: flex; flex-direction: column; gap: 6px; border-top: 1px dashed var(--line); padding-top: 13px; }
-  .meta-row { display: flex; gap: 8px; font-size: 12.5px; }
-  .meta-row .k { color: var(--clay); font-weight: 700; flex: 0 0 auto; letter-spacing: .04em; }
-  .meta-row .v { color: var(--ink); }
-  .more { margin-top: 12px; font-size: 12.5px; color: var(--forest-deep); font-weight: 700; letter-spacing: .04em; }
-  .more::after { content: " →"; }
-
-  .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 50px 0; font-size: 14px; }
-
-  /* ---------- drawer ---------- */
-  .backdrop {
-    position: fixed; inset: 0; background: rgba(31,38,29,.42); backdrop-filter: blur(2px);
-    opacity: 0; pointer-events: none; transition: opacity .25s ease; z-index: 40;
-  }
-  .backdrop.open { opacity: 1; pointer-events: auto; }
-  .drawer {
-    position: fixed; top: 0; right: 0; height: 100%; width: min(560px, 94vw);
-    background: var(--paper); border-left: 1px solid var(--line); z-index: 41;
-    transform: translateX(102%); transition: transform .32s cubic-bezier(.22,.61,.36,1);
-    overflow-y: auto; box-shadow: -30px 0 60px -30px rgba(31,38,29,.5);
-  }
-  .drawer.open { transform: none; }
-  .d-inner { padding: 30px 34px 60px; }
-  .d-close {
-    position: sticky; top: 0; float: right; margin: -6px -8px 0 0;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    width: 38px; height: 38px; cursor: pointer; font-size: 18px; color: var(--muted); line-height: 1;
-  }
-  .d-close:hover { color: var(--ink); border-color: var(--forest); }
-  .d-top { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-  .drawer h2 {
-    font-family: var(--display); font-weight: 700; font-size: 27px; line-height: 1.3;
-    margin: 4px 0 6px; color: var(--forest-deep);
-  }
-  .d-one { color: var(--muted); font-size: 14.5px; margin: 0 0 24px; }
-  .field { margin-bottom: 18px; }
-  .field .label {
-    font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--clay);
-    font-weight: 700; margin-bottom: 5px;
-  }
-  .field .val { font-size: 14.5px; color: var(--ink); }
-  .field.value-hl .val {
-    background: linear-gradient(180deg, transparent 62%, rgba(63,125,90,.22) 0);
-    display: inline; font-weight: 500;
-  }
-  .price-box {
-    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-    padding: 15px 17px; margin: 22px 0;
-  }
-  .price-box .label { color: var(--forest-deep); }
-  .price-box .val { font-size: 16px; font-weight: 700; }
-  .sales { background: #fbf7ef; border: 1px solid #ece2cd; border-radius: 12px; padding: 16px 18px; margin: 22px 0; }
-  .sales .label { color: var(--clay); }
-  .sales ul { margin: 8px 0 0; padding-left: 18px; }
-  .sales li { font-size: 14px; margin-bottom: 6px; }
-  .why { font-style: normal; font-family: var(--display); font-size: 15px; color: var(--ink);
-    border-left: 3px solid var(--forest); padding: 4px 0 4px 15px; margin: 22px 0; }
-  .cta {
-    display: inline-flex; align-items: center; gap: 8px; font-family: var(--body); font-weight: 700;
-    font-size: 14px; border-radius: 999px; padding: 12px 22px; border: none; cursor: pointer;
-    background: var(--clay); color: #fff; transition: background .18s ease;
-  }
-  .cta:hover { background: #a8542c; }
-  .cta[disabled] { background: var(--paper-2); color: var(--muted); cursor: not-allowed; }
-
-  footer { border-top: 1px solid var(--line); padding: 26px 0 50px; color: var(--muted); font-size: 12.5px; }
-  footer code { background: var(--paper-2); padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+  footer{ border-top:1px solid var(--line); padding:26px 0 50px; color:var(--muted); font-size:12.5px; }
 </style>
 </head>
 <body>
@@ -209,7 +82,7 @@
       <p class="kicker">Solution Shelf</p>
       <h1 class="brand">解の棚<span class="dot">.</span></h1>
       <p class="tagline">現場の面倒を、現場に合わせて整える。</p>
-      <p class="sub">紙・Excel・LINEに散らばった中小事業者の業務を、実績あるツールと現場目線で「使える形」に。御社の業種からお選びください。気になるものは、その場でデモをご覧いただけます。</p>
+      <p class="sub">紙・Excel・LINEに散らばった中小事業者の業務を、実績あるツールと現場目線で「使える形」に。御社の業種からお選びください。カードを開くと、提案スライドと動くデモをご覧いただけます。</p>
       <div class="rule"></div>
     </header>
 
@@ -222,124 +95,52 @@
     </footer>
   </div>
 
-  <div class="backdrop" id="backdrop"></div>
-  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="d-title"></aside>
-
   <script src="packages.js"></script>
   <script>
     const SEG_ORDER = ["農業", "B型・A型", "飲食", "小売"];
-    const SEG_VAR = { "農業": "var(--seg-農業)", "B型・A型": "var(--seg-Btype)", "飲食": "var(--seg-飲食)", "小売": "var(--seg-小売)" };
+    const SEG_VAR = { "農業":"var(--seg-農業)", "B型・A型":"var(--seg-Btype)", "飲食":"var(--seg-飲食)", "小売":"var(--seg-小売)" };
     const STATUS = {
-      ready:   { label: "提供可能", cls: "b-ready" },
-      prep:    { label: "準備中",   cls: "b-prep" },
-      design:  { label: "設計中",   cls: "b-design" },
-      consult: { label: "ご相談",   cls: "b-consult" },
+      ready:{label:"提供可能",cls:"b-ready"}, prep:{label:"準備中",cls:"b-prep"},
+      design:{label:"設計中",cls:"b-design"}, consult:{label:"ご相談",cls:"b-consult"},
     };
-    const pkgs = (window.PACKAGES || []).slice().sort((a, b) => (b.lead === true) - (a.lead === true));
+    // おすすめ(lead) を先頭に。それ以外は元の順。サイズは全て同じ。
+    const pkgs = (window.PACKAGES||[]).slice().sort((a,b)=>(b.lead===true)-(a.lead===true));
     let active = "all";
+    const el=(t,c,h)=>{const e=document.createElement(t); if(c)e.className=c; if(h!=null)e.innerHTML=h; return e;};
+    const esc=(s)=>String(s==null?"":s).replace(/[&<>"]/g,(m)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
 
-    const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h != null) e.innerHTML = h; return e; };
-    const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
-
-    function renderFilters() {
-      const nav = document.getElementById("filters");
-      nav.innerHTML = "";
-      nav.appendChild(el("span", "lbl", "業種で選ぶ"));
-      const counts = { all: pkgs.length };
-      SEG_ORDER.forEach((s) => (counts[s] = pkgs.filter((p) => p.segment === s).length));
-      const mk = (key, name) => {
-        const c = el("button", "chip", `${esc(name)}<span class="n">${counts[key] || 0}</span>`);
-        c.setAttribute("aria-pressed", active === key);
-        c.onclick = () => { active = key; renderFilters(); renderGrid(); };
-        return c;
-      };
-      nav.appendChild(mk("all", "すべて"));
-      SEG_ORDER.forEach((s) => nav.appendChild(mk(s, s)));
+    function renderFilters(){
+      const nav=document.getElementById("filters"); nav.innerHTML="";
+      nav.appendChild(el("span","lbl","業種で選ぶ"));
+      const counts={all:pkgs.length}; SEG_ORDER.forEach(s=>counts[s]=pkgs.filter(p=>p.segment===s).length);
+      const mk=(key,name)=>{ const c=el("button","chip",`${esc(name)}<span class="n">${counts[key]||0}</span>`);
+        c.setAttribute("aria-pressed",active===key); c.onclick=()=>{active=key; renderFilters(); renderGrid();}; return c; };
+      nav.appendChild(mk("all","すべて")); SEG_ORDER.forEach(s=>nav.appendChild(mk(s,s)));
     }
-
-    function card(p, i) {
-      const c = el("article", "card" + (p.lead ? " lead" : ""));
-      c.style.animationDelay = (i * 55) + "ms";
-      const st = STATUS[p.status] || STATUS.consult;
-      c.innerHTML =
-        `<div class="card-top">
-           <span class="seg" style="background:${SEG_VAR[p.segment] || "var(--muted)"}">${esc(p.segment)}</span>
-           <span class="badge ${st.cls}">${st.label}</span>
-         </div>
-         ${p.lead ? '<span class="lead-ribbon">おすすめ</span>' : ""}
-         <h3>${esc(p.title)}</h3>
-         <p class="one">${esc(p.oneLiner)}</p>
-         <div class="card-foot">
-           <div class="meta-row"><span class="k">効果</span><span class="v">${esc(p.value)}</span></div>
-           <div class="meta-row"><span class="k">価格</span><span class="v">${esc(p.price)}</span></div>
-           <div class="more">この解を見る</div>
-         </div>`;
-      c.onclick = () => openDrawer(p);
+    function card(p,i){
+      const c=el("article","card"); c.style.animationDelay=(i*55)+"ms";
+      const st=STATUS[p.status]||STATUS.consult;
+      c.innerHTML=`<div class="card-top">
+          <span class="seg" style="background:${SEG_VAR[p.segment]||"var(--muted)"}">${esc(p.segment)}</span>
+          <span class="badge ${st.cls}">${st.label}</span></div>
+        ${p.lead?'<span class="rec">おすすめ</span>':""}
+        <h3>${esc(p.title)}</h3>
+        <p class="one">${esc(p.oneLiner)}</p>
+        <div class="card-foot">
+          <div class="meta-row"><span class="k">効果</span><span class="v">${esc(p.value)}</span></div>
+          <div class="meta-row"><span class="k">価格</span><span class="v">${esc(p.price)}</span></div>
+          <div class="more">提案スライドを見る</div>
+        </div>`;
+      c.onclick=()=>{ location.href="slides.html?id="+encodeURIComponent(p.id); };
       return c;
     }
-
-    function renderGrid() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-      const list = active === "all" ? pkgs : pkgs.filter((p) => p.segment === active);
-      if (!list.length) { grid.appendChild(el("p", "empty", "このセグメントの解はまだ準備中です。")); return; }
-      list.forEach((p, i) => grid.appendChild(card(p, i)));
+    function renderGrid(){
+      const grid=document.getElementById("grid"); grid.innerHTML="";
+      const list=active==="all"?pkgs:pkgs.filter(p=>p.segment===active);
+      if(!list.length){ grid.appendChild(el("p","empty","このセグメントの解はまだ準備中です。")); return; }
+      list.forEach((p,i)=>grid.appendChild(card(p,i)));
     }
-
-    function field(label, val, extra) {
-      if (!val) return "";
-      return `<div class="field ${extra || ""}"><div class="label">${label}</div><div class="val">${esc(val)}</div></div>`;
-    }
-
-    function openDrawer(p) {
-      const st = STATUS[p.status] || STATUS.consult;
-      const sales = (p.steps || []).map((s) => `<li>${esc(s)}</li>`).join("");
-      const d = document.getElementById("drawer");
-      d.innerHTML =
-        `<div class="d-inner">
-           <button class="d-close" aria-label="閉じる" onclick="closeDrawer()">✕</button>
-           <div class="d-top">
-             <span class="seg" style="background:${SEG_VAR[p.segment] || "var(--muted)"}">${esc(p.segment)}</span>
-             <span class="badge ${st.cls}">${st.label}</span>
-           </div>
-           <h2 id="d-title">${esc(p.title)}</h2>
-           <p class="d-one">${esc(p.oneLiner)}</p>
-           ${field("誰に", p.who)}
-           ${field("どの業務", p.process)}
-           ${field("いまの面倒", p.pain)}
-           ${field("こう減らす", p.value, "value-hl")}
-           <div class="price-box"><div class="label">価格</div><div class="val">${esc(p.price)}</div></div>
-           ${p.whyKoya ? `<p class="why">${esc(p.whyKoya)}</p>` : ""}
-           ${sales ? `<div class="sales"><div class="label">導入の進め方</div><ul>${sales}</ul></div>` : ""}
-           ${field("技術ベース", p.oss)}
-           <div style="margin-top:24px">
-             <button class="cta" ${p.demo ? "" : "disabled"} onclick="${p.demo ? `window.open('${esc(p.demo)}','_blank')` : ""}">
-               ${p.demo ? "デモを見せる ▶" : "デモ準備中"}
-             </button>
-           </div>
-         </div>`;
-      d.classList.add("open");
-      document.getElementById("backdrop").classList.add("open");
-      document.body.style.overflow = "hidden";
-      if (location.hash !== "#" + p.id) history.replaceState(null, "", "#" + p.id);
-    }
-    function closeDrawer() {
-      document.getElementById("drawer").classList.remove("open");
-      document.getElementById("backdrop").classList.remove("open");
-      document.body.style.overflow = "";
-      if (location.hash) history.replaceState(null, "", location.pathname + location.search);
-    }
-    document.getElementById("backdrop").onclick = closeDrawer;
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
-
-    renderFilters();
-    renderGrid();
-
-    // #id で該当パッケージを直接開く（客先で一発提示できる）
-    if (location.hash) {
-      const target = pkgs.find((p) => p.id === location.hash.slice(1));
-      if (target) openDrawer(target);
-    }
+    renderFilters(); renderGrid();
   </script>
 </body>
 </html>
